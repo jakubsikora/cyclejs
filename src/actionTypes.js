@@ -8,9 +8,12 @@ export const RELEASE_LEFT = 'RELEASE_LEFT';
 export const PRESS_RIGHT = 'PRESS_RIGHT';
 export const RELEASE_RIGHT = 'RELEASE_RIGHT';
 
-// Hero
+// Bike
 export const UPDATE_THRUST = 'UPDATE_THRUST';
 export const UPDATE_LEFT = 'UPDATE_LEFT';
 export const UPDATE_RIGHT = 'UPDATE_RIGHT';
-export const UPDATE_HERO = 'UPDATE_HERO';
-export const INIT_HERO = 'INIT_HERO';
+export const UPDATE_BIKE = 'UPDATE_BIKE';
+export const INIT_BIKE = 'INIT_BIKE';
+
+// Track
+export const UPDATE_TRACK_POSITION = 'UPDATE_TRACK_POSITION';

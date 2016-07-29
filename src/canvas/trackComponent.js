@@ -1,4 +1,5 @@
 import Component from './component';
+import { updateTrackPosition } from '../actions';
 
 // TODO move to store
 let position = 0;
@@ -8,15 +9,17 @@ class TrackComponent extends Component {
     super(canvas);
 
     this.track = [
-      { x0: 0, y0: 20, x1: 1000, y1: 120 },
-      { x0: 1000, y0: 120, x1: 1500, y1: 80 },
-      { x0: 1500, y0: 80, x1: 25000, y1: 80 },
+      { x0: 0, y0: 20, x1: 1000, y1: 20 },
+      { x0: 1000, y0: 20, x1: 1500, y1: 300 },
+      { x0: 1500, y0: 300, x1: 2500, y1: 320 },
+      { x0: 2500, y0: 320, x1: 4500, y1: 80 },
+      { x0: 4500, y0: 80, x1: 25000, y1: 80 },
     ];
   }
 
-  render() {
-    position += 1;
-    this.ctx.translate(-1, 0);
+  render(store) {
+    position += 2;
+    this.ctx.translate(-2, 0);
 
     this.track.forEach(item => {
       this.ctx.beginPath();
@@ -37,10 +40,7 @@ class TrackComponent extends Component {
       position
     );
 
-    console.log(boundries, point);
-
-    this.ctx.fillStyle = '#FF0000';
-    this.ctx.fillRect(point[0], this.canvas.height - point[1], 10, 10);
+    store.dispatch(updateTrackPosition(point));
   }
 
   calculateCrossingPoint(x0, y0, x1, y1, x) {

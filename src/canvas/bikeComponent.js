@@ -1,6 +1,6 @@
 import Component from './component';
 
-class HeroComponent extends Component {
+class BikeComponent extends Component {
   constructor(canvas) {
     super(canvas);
 
@@ -14,14 +14,32 @@ class HeroComponent extends Component {
     this.image.src = '/assets/img/bike.png';
   }
 
-  render(state) {
+  render(store) {
     if (!this.loaded) return;
+
+    const state = store.getState();
+
+    const size = {
+      width: 96,
+      height: 57,
+    };
+
+    const position = [
+      state.track.position[0],
+      this.canvas.height - state.track.position[1] - size.height - 2,
+    ];
 
     this.ctx.drawImage(
       this.image,
-      100,
-      100
+      position[0],
+      position[1],
+      size.width,
+      size.height
     );
+
+    if (position[0] + size.width > state.track.position) {
+
+    }
   }
 
   renderHeroDebug(state) {
@@ -52,4 +70,4 @@ class HeroComponent extends Component {
   }
 }
 
-export default HeroComponent;
+export default BikeComponent;

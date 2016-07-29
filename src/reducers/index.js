@@ -1,8 +1,10 @@
 import { combineReducers } from 'redux';
 import keys from './keys';
-import hero from './hero';
+import bike from './bike';
+import track from './track';
 
 export default combineReducers({
   keys,
-  hero,
+  bike,
+  track,
 });

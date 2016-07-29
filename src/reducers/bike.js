@@ -1,9 +1,9 @@
 import {
-  INIT_HERO,
+  INIT_BIKE,
   UPDATE_THRUST,
   UPDATE_LEFT,
   UPDATE_RIGHT,
-  UPDATE_HERO,
+  UPDATE_BIKE,
 } from '../actionTypes';
 
 const initialState = {
@@ -59,17 +59,17 @@ function updatePosition(state) {
   return { ...state, position, forward, angle, velocity, right, left };
 }
 
-export default function hero(state = initialState, action) {
+export default function bike(state = initialState, action) {
   switch (action.type) {
-    case INIT_HERO:
-      return { ...state, ...action.hero };
+    case INIT_BIKE:
+      return { ...state, ...action.bike };
     case UPDATE_THRUST:
       return updatePosition({ ...state, thrust: action.thrust });
     case UPDATE_LEFT:
       return updatePosition({ ...state, left: action.left });
     case UPDATE_RIGHT:
       return updatePosition({ ...state, right: action.right });
-    case UPDATE_HERO:
+    case UPDATE_BIKE:
       return updatePosition(state);
     default:
       return state;

@@ -5,10 +5,10 @@ import Keys from './keys';
 import raf from 'raf';
 import canvas from './canvas';
 import StageComponent from './canvas/stageComponent';
-import HeroComponent from './canvas/heroComponent';
+import BikeComponent from './canvas/bikeComponent';
 import TrackComponent from './canvas/trackComponent';
-import { initHero, updateHero } from './actions';
-import { UPDATE_HERO } from './actionTypes';
+import { initBike, updateBike } from './actions';
+import { UPDATE_BIKE, UPDATE_TRACK_POSITION } from './actionTypes';
 
 class Game {
   constructor() {
@@ -16,7 +16,9 @@ class Game {
 
     // Game state
     const logger = createLogger({
-      predicate: (getState, action) => action.type !== UPDATE_HERO,
+      predicate: (getState, action) =>
+        action.type !== UPDATE_BIKE
+        && action.type !== UPDATE_TRACK_POSITION,
     });
 
     this.store = createStore(
@@ -40,13 +42,13 @@ class Game {
     this.setEventHandlers();
 
     // Initialize Hero
-    this.initHero();
-    this.hero = new HeroComponent(canvas);
+    this.initBike();
+    this.hero = new BikeComponent(canvas);
   }
 
-  initHero() {
+  initBike() {
     // TODO: for now i will use some random data
-    this.store.dispatch(initHero({
+    this.store.dispatch(initBike({
       position: [this.stage.canvas.width / 2, this.stage.canvas.height / 2],
       size: [30, 30],
     }));
@@ -54,7 +56,7 @@ class Game {
 
   animate() {
     const animateCallback = () => {
-      this.store.dispatch(updateHero());
+      this.store.dispatch(updateBike());
       this.render();
     };
 
@@ -67,8 +69,8 @@ class Game {
 
   render() {
     this.stage.render();
-    // this.hero.render(this.store.getState());
-    this.track.render(this.store.getState());
+    this.hero.render(this.store);
+    this.track.render(this.store);
   }
 
   setEventHandlers() {

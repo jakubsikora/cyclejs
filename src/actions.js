@@ -7,11 +7,12 @@ import {
   RELEASE_LEFT,
   PRESS_RIGHT,
   RELEASE_RIGHT,
-  INIT_HERO,
+  INIT_BIKE,
   UPDATE_THRUST,
   UPDATE_LEFT,
   UPDATE_RIGHT,
-  UPDATE_HERO,
+  UPDATE_BIKE,
+  UPDATE_TRACK_POSITION,
 } from './actionTypes';
 
 export function pressUp() {
@@ -62,10 +63,10 @@ export function releaseRight() {
   };
 }
 
-export function initHero(hero) {
+export function initBike(bike) {
   return {
-    type: INIT_HERO,
-    hero,
+    type: INIT_BIKE,
+    bike,
   };
 }
 
@@ -90,8 +91,15 @@ export function updateRight(right) {
   };
 }
 
-export function updateHero() {
+export function updateBike() {
   return {
-    type: UPDATE_HERO,
+    type: UPDATE_BIKE,
+  };
+}
+
+export function updateTrackPosition(position) {
+  return {
+    type: UPDATE_TRACK_POSITION,
+    position,
   };
 }
