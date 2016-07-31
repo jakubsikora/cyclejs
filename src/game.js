@@ -7,8 +7,8 @@ import canvas from './canvas';
 import StageComponent from './canvas/stageComponent';
 import BikeComponent from './canvas/bikeComponent';
 import TrackComponent from './canvas/trackComponent';
-import { initBike, updateBike } from './actions';
-import { UPDATE_BIKE, UPDATE_TRACK_POSITION } from './actionTypes';
+import { initBike } from './actions';
+import { UPDATE_BIKE_POSITION } from './actionTypes';
 
 class Game {
   constructor() {
@@ -17,8 +17,7 @@ class Game {
     // Game state
     const logger = createLogger({
       predicate: (getState, action) =>
-        action.type !== UPDATE_BIKE
-        && action.type !== UPDATE_TRACK_POSITION,
+        action.type !== UPDATE_BIKE_POSITION,
     });
 
     this.store = createStore(
@@ -27,7 +26,7 @@ class Game {
     );
 
     this.stage = null;
-    this.hero = null;
+    this.bike = null;
   }
 
   init() {
@@ -43,7 +42,7 @@ class Game {
 
     // Initialize Hero
     this.initBike();
-    this.hero = new BikeComponent(canvas);
+    this.bike = new BikeComponent(canvas);
   }
 
   initBike() {
@@ -56,7 +55,6 @@ class Game {
 
   animate() {
     const animateCallback = () => {
-      this.store.dispatch(updateBike());
       this.render();
     };
 
@@ -69,7 +67,7 @@ class Game {
 
   render() {
     this.stage.render();
-    this.hero.render(this.store);
+    this.bike.render(this.store);
     this.track.render(this.store);
   }
 

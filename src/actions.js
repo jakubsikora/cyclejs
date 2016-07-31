@@ -8,11 +8,9 @@ import {
   PRESS_RIGHT,
   RELEASE_RIGHT,
   INIT_BIKE,
-  UPDATE_THRUST,
-  UPDATE_LEFT,
-  UPDATE_RIGHT,
-  UPDATE_BIKE,
-  UPDATE_TRACK_POSITION,
+  UPDATE_BIKE_POSITION,
+  INCREASE_BIKE_VELOCITY,
+  DECREASE_BIKE_VELOCITY,
 } from './actionTypes';
 
 export function pressUp() {
@@ -70,36 +68,23 @@ export function initBike(bike) {
   };
 }
 
-export function updateThrust(thrust) {
+export function updateBikePosition(position) {
   return {
-    type: UPDATE_THRUST,
-    thrust,
+    type: UPDATE_BIKE_POSITION,
+    payload: {
+      position,
+    },
   };
 }
 
-export function updateLeft(left) {
+export function increaseBikeVelocity() {
   return {
-    type: UPDATE_LEFT,
-    left,
+    type: INCREASE_BIKE_VELOCITY,
   };
 }
 
-export function updateRight(right) {
+export function decreaseBikeVelocity() {
   return {
-    type: UPDATE_RIGHT,
-    right,
-  };
-}
-
-export function updateBike() {
-  return {
-    type: UPDATE_BIKE,
-  };
-}
-
-export function updateTrackPosition(position) {
-  return {
-    type: UPDATE_TRACK_POSITION,
-    position,
+    type: DECREASE_BIKE_VELOCITY,
   };
 }

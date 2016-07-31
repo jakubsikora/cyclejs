@@ -1,25 +1,23 @@
 import {
-  updateThrust,
-  updateLeft,
-  updateRight,
+  increaseBikeVelocity,
+  decreaseBikeVelocity,
 } from './actions';
 
 class Keys {
   down(event, store) {
     switch (event.code) {
       case 'ArrowUp':
-        store.dispatch(updateThrust(true));
         break;
 
       case 'ArrowDown':
         break;
 
       case 'ArrowLeft':
-        store.dispatch(updateLeft(true));
+        store.dispatch(decreaseBikeVelocity());
         break;
 
       case 'ArrowRight':
-        store.dispatch(updateRight(true));
+        store.dispatch(increaseBikeVelocity());
         break;
 
       default:
@@ -29,18 +27,15 @@ class Keys {
   up(event, store) {
     switch (event.code) {
       case 'ArrowUp':
-        store.dispatch(updateThrust(false));
         break;
 
       case 'ArrowDown':
         break;
 
       case 'ArrowLeft':
-        store.dispatch(updateLeft(false));
         break;
 
       case 'ArrowRight':
-        store.dispatch(updateRight(false));
         break;
 
       default:
