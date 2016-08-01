@@ -7,7 +7,7 @@ import {
 
 const initialState = {
   position: [0, 0],
-  velocity: 0,
+  velocity: 1,
 };
 
 const velocityFactor = 0.5;
@@ -21,10 +21,10 @@ export default function bike(state = initialState, action) {
     case UPDATE_BIKE_POSITION:
       return { ...state, position: action.payload.position };
     case INCREASE_BIKE_VELOCITY:
-      if (state.velocity < 5) {
+      if (state.velocity < 10) {
         newVelocity = state.velocity + velocityFactor;
       } else {
-        newVelocity = 5;
+        newVelocity = 10;
       }
 
       return { ...state, velocity: newVelocity };

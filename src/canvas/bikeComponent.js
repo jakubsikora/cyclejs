@@ -29,10 +29,13 @@ class BikeComponent extends Component {
 
     const state = store.getState();
 
-    rearPosition += 1;
+    this.calculatePosition(state.bike.velocity);
+
     frontPosition = rearPosition + size.width - 25;
 
-    this.ctx.translate(-state.bike.velocity, 0);
+    if (rearPosition > this.canvas.width / 2) {
+      this.ctx.translate(-state.bike.velocity, 0);
+    }
 
 
     const imagePosition = [
@@ -46,9 +49,9 @@ class BikeComponent extends Component {
     const angle = this.calculateTrackAngle(frontPoint, rearPoint);
 
     this.ctx.font = '12px Arial';
-    this.ctx.fillText(`${rearPoint[0]}, ${rearPoint[1]}`, 0, 50);
-    this.ctx.fillText(`${frontPoint[0]}, ${frontPoint[1]}`, 0, 70);
-    this.ctx.fillText(`${state.bike.velocity}`, 0, 90);
+    this.ctx.fillText(`${rearPoint[0]}, ${rearPoint[1]}`, rearPosition, 50);
+    this.ctx.fillText(`${frontPoint[0]}, ${frontPoint[1]}`, rearPosition, 70);
+    this.ctx.fillText(`${state.bike.velocity}`, rearPosition, 90);
 
     this.ctx.save();
     this.ctx.translate(imagePosition[0], imagePosition[1] + size.height);
@@ -68,6 +71,15 @@ class BikeComponent extends Component {
 
 
     store.dispatch(updateBikePosition(rearPoint));
+  }
+
+  calculatePosition(velocity) {
+    if (rearPosition > this.canvas.width / 2) {
+      rearPosition += velocity;
+    } else {
+      // Idle till the middle of the screen
+      rearPosition += 1;
+    }
   }
 
   calculateTrackAngle(frontPoint, rearPoint) {
