@@ -7,8 +7,11 @@ import canvas from './canvas';
 import StageComponent from './canvas/stageComponent';
 import BikeComponent from './canvas/bikeComponent';
 import TrackComponent from './canvas/trackComponent';
-import { initBike } from './actions';
-import { UPDATE_BIKE_POSITION } from './actionTypes';
+import { initBike } from './actions/bike';
+import {
+  UPDATE_BIKE_POSITION,
+  UPDATE_CAMERA_OFFSET,
+} from './actionTypes';
 
 class Game {
   constructor() {
@@ -17,7 +20,8 @@ class Game {
     // Game state
     const logger = createLogger({
       predicate: (getState, action) =>
-        action.type !== UPDATE_BIKE_POSITION,
+        action.type !== UPDATE_BIKE_POSITION
+        && action.type !== UPDATE_CAMERA_OFFSET,
     });
 
     this.store = createStore(

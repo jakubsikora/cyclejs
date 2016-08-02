@@ -35,8 +35,6 @@ export default function bike(state = initialState, action) {
         newVelocity = 0;
       }
 
-      console.log(state.velocity);
-
       return { ...state, velocity: newVelocity };
     default:
       return state;

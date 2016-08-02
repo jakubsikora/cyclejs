@@ -1,5 +1,6 @@
 import Component from './component';
-import { updateBikePosition } from '../actions';
+import { updateBikePosition } from '../actions/bike';
+import { updateCameraOffset } from '../actions/camera';
 
 // TODO move to store
 let rearPosition = 0;
@@ -34,9 +35,9 @@ class BikeComponent extends Component {
     frontPosition = rearPosition + size.width - 25;
 
     if (rearPosition > this.canvas.width / 2) {
+      store.dispatch(updateCameraOffset(state.bike.velocity));
       this.ctx.translate(-state.bike.velocity, 0);
     }
-
 
     const imagePosition = [
       state.bike.position[0],
