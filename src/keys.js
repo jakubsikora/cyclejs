@@ -1,7 +1,7 @@
 import {
   increaseBikeVelocity,
   decreaseBikeVelocity,
-} from './actions';
+} from './actions/bike';
 
 class Keys {
   down(event, store) {

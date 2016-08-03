@@ -7,6 +7,7 @@ import canvas from './canvas';
 import StageComponent from './canvas/stageComponent';
 import BikeComponent from './canvas/bikeComponent';
 import TrackComponent from './canvas/trackComponent';
+import CameraComponent from './canvas/cameraComponent';
 import { initBike } from './actions/bike';
 import {
   UPDATE_BIKE_POSITION,
@@ -31,30 +32,18 @@ class Game {
 
     this.stage = null;
     this.bike = null;
+    this.camera = null;
   }
 
   init() {
-    console.log('Initializing game');
-
-    // Set the canvas stage
+    // Set the canvas components
     this.stage = new StageComponent(canvas);
     this.track = new TrackComponent(canvas);
+    this.camera = new CameraComponent(canvas);
+    this.bike = new BikeComponent(canvas);
 
     this.animate();
-
     this.setEventHandlers();
-
-    // Initialize Hero
-    this.initBike();
-    this.bike = new BikeComponent(canvas);
-  }
-
-  initBike() {
-    // TODO: for now i will use some random data
-    this.store.dispatch(initBike({
-      position: [this.stage.canvas.width / 2, this.stage.canvas.height / 2],
-      size: [30, 30],
-    }));
   }
 
   animate() {
@@ -70,7 +59,8 @@ class Game {
   }
 
   render() {
-    this.stage.render();
+    this.stage.render(this.store);
+    this.camera.render(this.store);
     this.bike.render(this.store);
     this.track.render(this.store);
   }

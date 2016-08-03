@@ -10,11 +10,9 @@ const initialState = {
 export default function camera(state = initialState, action) {
   switch (action.type) {
     case UPDATE_CAMERA_OFFSET:
-      const newTotalOffset = state.totalOffset + action.payload.offset;
-
       return {
         ...state,
-        totalOffset: newTotalOffset,
+        totalOffset: state.totalOffset + action.payload.offset,
         offset: action.payload.offset,
       };
     default:
