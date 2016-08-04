@@ -2,6 +2,11 @@ import Component from './component';
 import { updateBikePosition } from '../actions/bike';
 import { updateCameraOffset } from '../actions/camera';
 
+const size = {
+  width: 96,
+  height: 57,
+};
+
 class BikeComponent extends Component {
   constructor(canvas) {
     super(canvas);
@@ -30,7 +35,7 @@ class BikeComponent extends Component {
     return points[index];
   }
 
-  getPoint(trackPoints, position) {
+  getPosition(trackPoints, position) {
     const boundries = this.getBoundries(trackPoints, position);
 
     return this.calculateCrossingPoint(
@@ -42,7 +47,7 @@ class BikeComponent extends Component {
     );
   }
 
-  calculatePosition(velocity, store) {
+  calculateNextPosition(velocity, store) {
     if (this.backX > this.canvas.width / 3) {
       this.backX += velocity;
       store.dispatch(updateCameraOffset(velocity));
@@ -52,15 +57,15 @@ class BikeComponent extends Component {
     }
   }
 
-  calculateTrackAngle(frontPoint, backPoint) {
+  calculateTrackAngle(frontPosition, backPosition) {
     // Calculate length between points
-    const x = Math.pow((frontPoint[0] - backPoint[0]), 2);
-    const y = Math.pow((frontPoint[1] - backPoint[1]), 2);
+    const x = Math.pow((frontPosition[0] - backPosition[0]), 2);
+    const y = Math.pow((frontPosition[1] - backPosition[1]), 2);
     const pointsLength = Math.sqrt(x + y);
 
     // Calculate base length
-    const baseX = Math.pow((frontPoint[0] - backPoint[0]), 2);
-    const baseY = Math.pow((backPoint[1] - backPoint[1]), 2);
+    const baseX = Math.pow((frontPosition[0] - backPosition[0]), 2);
+    const baseY = Math.pow((backPosition[1] - backPosition[1]), 2);
     const baseLength = Math.sqrt(baseX + baseY);
 
     // Calculate cosinus between these 2 lengths
@@ -69,7 +74,7 @@ class BikeComponent extends Component {
     let angleRadians = Math.acos(cosinus);
 
     // Depends of level decide how the angle should be represent
-    if ((frontPoint[1] - backPoint[1]) > 0) {
+    if ((frontPosition[1] - backPosition[1]) > 0) {
       angleRadians = -angleRadians;
     }
 
@@ -102,25 +107,20 @@ class BikeComponent extends Component {
   render(store) {
     if (!this.loaded) return;
 
-    const size = {
-      width: 96,
-      height: 57,
-    };
-
     const state = store.getState();
 
-    this.calculatePosition(state.bike.velocity, store);
+    this.calculateNextPosition(state.bike.velocity, store);
 
     this.frontX = this.backX + size.width - 25;
 
     const imagePosition = [
       state.bike.position.back[0],
-      this.canvas.height - state.bike.position.back[1] - size.height - 2,
+      this.canvas.height - state.bike.position.back[1] - size.height,
     ];
 
-    const backPoint = this.getPoint(state.track.points, this.backX);
-    const frontPoint = this.getPoint(state.track.points, this.frontX);
-    const angle = this.calculateTrackAngle(frontPoint, backPoint);
+    const backPosition = this.getPosition(state.track.points, this.backX);
+    const frontPosition = this.getPosition(state.track.points, this.frontX);
+    const angle = this.calculateTrackAngle(frontPosition, backPosition);
 
     this.ctx.save();
     this.ctx.translate(imagePosition[0], imagePosition[1] + size.height);
@@ -136,8 +136,8 @@ class BikeComponent extends Component {
     this.ctx.restore();
 
     store.dispatch(updateBikePosition({
-      back: backPoint,
-      front: frontPoint,
+      back: backPosition,
+      front: frontPosition,
     }));
 
     this.renderStats(state);
