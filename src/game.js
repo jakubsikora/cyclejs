@@ -10,7 +10,7 @@ import TrackComponent from './canvas/trackComponent';
 import CameraComponent from './canvas/cameraComponent';
 import { initBike } from './actions/bike';
 import {
-  UPDATE_BIKE_POSITION,
+  UPDATE_BIKE,
   UPDATE_CAMERA_OFFSET,
 } from './actionTypes';
 
@@ -21,7 +21,7 @@ class Game {
     // Game state
     const logger = createLogger({
       predicate: (getState, action) =>
-        action.type !== UPDATE_BIKE_POSITION
+        action.type !== UPDATE_BIKE
         && action.type !== UPDATE_CAMERA_OFFSET,
     });
 

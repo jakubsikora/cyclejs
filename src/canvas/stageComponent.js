@@ -9,9 +9,14 @@ class StageComponent extends Component {
     this.canvas.height = document.body.clientHeight;
   }
 
-  render() {
+  render(store) {
+    const state = store.getState();
+
+    // Get last point of the track
+    const endTrackPoint = state.track.points[state.track.points.length - 1].x1;
+
     // Wipe the canvas clean
-    this.ctx.clearRect(0, 0, 20000, this.canvas.height);
+    this.ctx.clearRect(0, 0, endTrackPoint, this.canvas.height);
   }
 }
 
