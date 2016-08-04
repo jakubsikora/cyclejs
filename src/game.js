@@ -61,8 +61,8 @@ class Game {
   render() {
     this.stage.render(this.store);
     this.camera.render(this.store);
-    this.bike.render(this.store);
     this.track.render(this.store);
+    this.bike.render(this.store);
   }
 
   setEventHandlers() {
