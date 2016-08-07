@@ -1,36 +1,34 @@
 import Component from './component';
-
-const TRACK_WIDTH = 90;
+import { TRACK_WIDTH } from '../constants';
 
 class TrackComponent extends Component {
   constructor(canvas) {
     super(canvas);
 
-    this.roadImage = new Image();
-    this.roadImageLoaded = false;
+    this.roadImageLoaded = true;
+    // this.roadImage = new Image();
 
-    this.roadImage.onload = () => {
-      this.roadImageLoaded = true;
-    };
+    // this.roadImage.onload = () => {
+    //   this.roadImageLoaded = true;
+    // };
 
-    this.roadImage.src = '/assets/img/road2.jpg';
+    // this.roadImage.src = '/assets/img/road2.jpg';
   }
 
-  generatePolygon(points) {
+  fillTrack(trackPoints) {
     if (this.roadImageLoaded) {
-      const pattern = this.ctx.createPattern(this.roadImage, 'repeat');
+      // const pattern = this.ctx.createPattern(this.roadImage, 'repeat');
       const linePoints = [];
 
-
-      points.forEach(item => {
+      trackPoints.forEach(item => {
         linePoints.push([item.x0, this.canvas.height - item.y0]);
       });
 
-      points.reverse().forEach(item => {
+      trackPoints.reverse().forEach(item => {
         linePoints.push([item.x0, this.canvas.height - item.y0 - TRACK_WIDTH]);
       });
 
-      this.ctx.fillStyle = pattern;
+      this.ctx.fillStyle = '#ccc';
       this.ctx.beginPath();
       this.ctx.moveTo(linePoints[0][0], linePoints[0][1]);
 
@@ -43,30 +41,34 @@ class TrackComponent extends Component {
     }
   }
 
-  render(store) {
-    const state = store.getState();
-
+  renderRoad(trackPoints) {
     this.ctx.strokeStyle = '#9e9995';
 
-    state.track.points.forEach(item => {
+    trackPoints.forEach(item => {
       this.ctx.beginPath();
       this.ctx.moveTo(item.x0, this.canvas.height - item.y0);
       this.ctx.lineTo(item.x1, this.canvas.height - item.y1);
-      this.ctx.lineWidth = 15;
+      this.ctx.lineWidth = 5;
       this.ctx.stroke();
     });
 
-    state.track.points.forEach(item => {
+    trackPoints.forEach(item => {
       this.ctx.beginPath();
       this.ctx.moveTo(item.x0, this.canvas.height - item.y0 - TRACK_WIDTH);
       this.ctx.lineTo(item.x1, this.canvas.height - item.y1 - TRACK_WIDTH);
-      this.ctx.lineWidth = 15;
+      this.ctx.lineWidth = 5;
       this.ctx.stroke();
     });
 
     this.ctx.strokeStyle = '#fff';
 
-    this.generatePolygon(state.track.points);
+    // this.fillTrack(trackPoints);
+  }
+
+  render(store) {
+    const state = store.getState();
+
+    this.renderRoad(state.track.points);
   }
 }
 

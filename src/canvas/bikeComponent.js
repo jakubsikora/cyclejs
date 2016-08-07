@@ -1,6 +1,10 @@
 import Component from './component';
 import { updateBikePosition, updateBike } from '../actions/bike';
 import { updateCameraOffset } from '../actions/camera';
+import {
+  METER_TO_PX,
+  TRACK_SCREEN_OFFSET,
+} from '../constants';
 
 import {
   BIKE_WIDTH,
@@ -31,13 +35,19 @@ class BikeComponent extends Component {
     this.ctx.fillStyle = '#2ec16e';
     this.ctx.fillText(
       `Velocity: ${state.bike.velocity}`,
+      state.bike.position.back[0], height - 170);
+    this.ctx.fillText(
+      `Distance: ${parseInt(state.bike.position.front[0] / METER_TO_PX, 10)}m`,
       state.bike.position.back[0], height - 150);
     this.ctx.fillText(
-      `Back pos: ${state.bike.position.back[0]}, ${state.bike.position.back[1]}`,
+      `Elevation: ${parseInt((state.bike.position.front[1] - TRACK_SCREEN_OFFSET) / METER_TO_PX, 10)}m`,
       state.bike.position.back[0], height - 130);
     this.ctx.fillText(
-      `Front pos: ${state.bike.position.front[0]}, ${state.bike.position.front[1]}`,
+      `Back pos: ${state.bike.position.back[0]}, ${state.bike.position.back[1]}`,
       state.bike.position.back[0], height - 110);
+    this.ctx.fillText(
+      `Front pos: ${state.bike.position.front[0]}, ${state.bike.position.front[1]}`,
+      state.bike.position.back[0], height - 90);
   }
 
   render(store) {
