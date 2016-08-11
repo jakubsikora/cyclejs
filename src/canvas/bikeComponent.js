@@ -20,7 +20,7 @@ class BikeComponent extends Component {
       this.bikeLoaded = true;
     };
 
-    this.bikeImage.src = '/assets/img/bike.png';
+    this.bikeImage.src = '/assets/img/cyclist.png';
 
     // Local state for the bike position x-axis
     this.x = 0;
@@ -33,19 +33,19 @@ class BikeComponent extends Component {
     this.ctx.fillStyle = '#2ec16e';
     this.ctx.fillText(
       `Velocity: ${state.bike.velocity}`,
-      state.bike.position.back[0], height - 210);
+      state.bike.position.back[0], height - 270);
     this.ctx.fillText(
       `Distance: ${parseInt(state.bike.position.front[0] / METER_TO_PX, 10)}m`,
-      state.bike.position.back[0], height - 190);
+      state.bike.position.back[0], height - 250);
     this.ctx.fillText(
       `Elevation: ${parseInt((state.bike.position.front[1] - TRACK_SCREEN_OFFSET) / METER_TO_PX, 10)}m`,
-      state.bike.position.back[0], height - 170);
+      state.bike.position.back[0], height - 230);
     this.ctx.fillText(
       `Back pos: ${state.bike.position.back[0]}, ${state.bike.position.back[1]}`,
-      state.bike.position.back[0], height - 150);
+      state.bike.position.back[0], height - 210);
     this.ctx.fillText(
       `Front pos: ${state.bike.position.front[0]}, ${state.bike.position.front[1]}`,
-      state.bike.position.back[0], height - 130);
+      state.bike.position.back[0], height - 190);
   }
 
   render(store) {
