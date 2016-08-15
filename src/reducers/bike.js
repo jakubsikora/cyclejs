@@ -1,6 +1,4 @@
 import {
-  INIT_BIKE,
-  UPDATE_BIKE_POSITION,
   INCREASE_BIKE_VELOCITY,
   DECREASE_BIKE_VELOCITY,
   UPDATE_BIKE,
@@ -8,7 +6,7 @@ import {
 
 import {
   BIKE_IDLE_VELOCITY,
-  BIKE_MAX_VELOCITY,
+  BIKE_STAMINA_INITIAL,
 } from '../constants';
 
 const initialState = {
@@ -18,46 +16,29 @@ const initialState = {
   },
   velocity: BIKE_IDLE_VELOCITY,
   angle: 0,
+  force: 0,
+  stamina: BIKE_STAMINA_INITIAL,
 };
 
-const velocityFactor = 0.5;
-
 export default function bike(state = initialState, action) {
-  let velocity;
-
   switch (action.type) {
     case INCREASE_BIKE_VELOCITY:
-      velocity = state.velocity;
-
-      if (state.velocity < BIKE_MAX_VELOCITY) {
-        velocity = state.velocity + velocityFactor;
-      }
-
-      return { ...state, velocity };
+      return { ...state,
+        velocity: action.payload.velocity,
+      };
     case DECREASE_BIKE_VELOCITY:
-      velocity = state.velocity;
-
-      if (state.velocity > BIKE_IDLE_VELOCITY) {
-        velocity = state.velocity - velocityFactor;
-      }
-
-      return { ...state, velocity };
+      return { ...state,
+        velocity: action.payload.velocity,
+      };
     case UPDATE_BIKE:
-      const back = [
-        parseInt(action.payload.position.back[0], 10),
-        parseInt(action.payload.position.back[1], 10),
-      ];
-
-      const front = [
-        parseInt(action.payload.position.front[0], 10),
-        parseInt(action.payload.position.front[1], 10),
-      ];
-
       return { ...state,
         angle: action.payload.angle,
         position: {
-          back, front
-        }
+          back: action.payload.position.back,
+          front: action.payload.position.front,
+        },
+        force: action.payload.force,
+        stamina: action.payload.stamina,
       };
     default:
       return state;

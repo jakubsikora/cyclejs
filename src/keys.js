@@ -5,6 +5,8 @@ import {
 
 class Keys {
   down(event, store) {
+    const state = store.getState();
+
     switch (event.code) {
       case 'ArrowUp':
         break;
@@ -13,11 +15,11 @@ class Keys {
         break;
 
       case 'ArrowLeft':
-        store.dispatch(decreaseBikeVelocity());
+        store.dispatch(decreaseBikeVelocity(state.bike.velocity));
         break;
 
       case 'ArrowRight':
-        store.dispatch(increaseBikeVelocity());
+        store.dispatch(increaseBikeVelocity(state.bike.velocity));
         break;
 
       default:

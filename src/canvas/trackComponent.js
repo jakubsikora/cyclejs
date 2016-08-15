@@ -6,18 +6,10 @@ class TrackComponent extends Component {
     super(canvas);
 
     this.roadImageLoaded = true;
-    // this.roadImage = new Image();
-
-    // this.roadImage.onload = () => {
-    //   this.roadImageLoaded = true;
-    // };
-
-    // this.roadImage.src = '/assets/img/road2.jpg';
   }
 
   fillTrack(trackPoints) {
     if (this.roadImageLoaded) {
-      // const pattern = this.ctx.createPattern(this.roadImage, 'repeat');
       const linePoints = [];
 
       trackPoints.forEach(item => {
@@ -61,8 +53,6 @@ class TrackComponent extends Component {
     });
 
     this.ctx.strokeStyle = '#fff';
-
-    // this.fillTrack(trackPoints);
   }
 
   render(store) {

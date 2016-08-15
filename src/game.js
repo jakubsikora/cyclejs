@@ -8,11 +8,12 @@ import StageComponent from './canvas/stageComponent';
 import BikeComponent from './canvas/bikeComponent';
 import TrackComponent from './canvas/trackComponent';
 import CameraComponent from './canvas/cameraComponent';
-import { initBike } from './actions/bike';
 import {
   UPDATE_BIKE,
   UPDATE_CAMERA_OFFSET,
+  UPDATE_GAME_TIME,
 } from './actionTypes';
+import { updateGameTime } from './actions/game';
 
 class Game {
   constructor() {
@@ -22,7 +23,8 @@ class Game {
     const logger = createLogger({
       predicate: (getState, action) =>
         action.type !== UPDATE_BIKE
-        && action.type !== UPDATE_CAMERA_OFFSET,
+        && action.type !== UPDATE_CAMERA_OFFSET
+        && action.type !== UPDATE_GAME_TIME,
     });
 
     this.store = createStore(
@@ -51,9 +53,19 @@ class Game {
       this.render();
     };
 
+    let lastTime;
+    let dt;
+    const that = this;
+
     raf(function tick() {
+      const now = Date.now();
+      dt = (now - lastTime) / 1000;
+
+      that.store.dispatch(updateGameTime(dt));
+
       animateCallback();
 
+      lastTime = now;
       raf(tick);
     });
   }

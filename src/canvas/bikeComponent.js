@@ -1,12 +1,14 @@
 import Component from './component';
-import { updateBikePosition, updateBike } from '../actions/bike';
+import Sprite from './sprite';
+import { updateBike } from '../actions/bike';
 import { updateCameraOffset } from '../actions/camera';
 import {
   METER_TO_PX,
   TRACK_SCREEN_OFFSET,
   BIKE_TRACK_OFFSET,
-  BIKE_WIDTH,
   BIKE_HEIGHT,
+  BIKE_SPRITESHEET_WIDTH,
+  BIKE_SPRITESHEET_HEIGHT,
 } from '../constants';
 
 class BikeComponent extends Component {
@@ -18,34 +20,73 @@ class BikeComponent extends Component {
 
     this.bikeImage.onload = () => {
       this.bikeLoaded = true;
+
+      this.bikeSprite = new Sprite({
+        ctx: this.ctx,
+        width: BIKE_SPRITESHEET_WIDTH,
+        height: BIKE_SPRITESHEET_HEIGHT,
+        image: this.bikeImage,
+        numberOfFrames: 8,
+        ticksPerFrame: 8,
+        spritesheet: this.bikeImage,
+        x: 0,
+        y: BIKE_TRACK_OFFSET,
+      });
     };
 
-    this.bikeImage.src = '/assets/img/cyclist.png';
+    this.bikeImage.src = '/assets/img/bike/spritesheet.png';
 
     // Local state for the bike position x-axis
     this.x = 0;
   }
 
   renderStats(state) {
-    const height = this.canvas.height - state.bike.position.front[1] - 30;
+    const statsMap = [
+      {
+        label: 'Velocity',
+        value: `${state.bike.velocity} px/s`,
+      },
+      {
+        label: 'Distance',
+        value: `${parseInt(state.bike.position.back[0], 10)} px`,
+      },
+      {
+        label: 'Elevation',
+        value: `${parseInt((state.bike.position.front[1] - TRACK_SCREEN_OFFSET), 10)} px`,
+      },
+      {
+        label: 'Position',
+        value: `[${parseInt(state.bike.position.back[0], 10)}, ${parseInt(state.bike.position.back[1], 10)}] -> ` +
+        `[${parseInt(state.bike.position.front[0], 10)}, ${parseInt(state.bike.position.front[1], 10)}]`,
+      },
+      {
+        label: 'Force',
+        value: `${parseInt(state.bike.force, 10)} N`,
+      },
+      {
+        label: 'Delta time',
+        value: `${state.game.dt}s`,
+      },
+      {
+        label: 'Stamina',
+        value: `${state.bike.stamina}`,
+      },
+    ];
+
+    const height = this.canvas.height
+      - state.bike.position.front[1]
+      - BIKE_HEIGHT;
 
     this.ctx.font = '11px Verdana';
     this.ctx.fillStyle = '#2ec16e';
-    this.ctx.fillText(
-      `Velocity: ${state.bike.velocity}`,
-      state.bike.position.back[0], height - 270);
-    this.ctx.fillText(
-      `Distance: ${parseInt(state.bike.position.front[0] / METER_TO_PX, 10)}m`,
-      state.bike.position.back[0], height - 250);
-    this.ctx.fillText(
-      `Elevation: ${parseInt((state.bike.position.front[1] - TRACK_SCREEN_OFFSET) / METER_TO_PX, 10)}m`,
-      state.bike.position.back[0], height - 230);
-    this.ctx.fillText(
-      `Back pos: ${state.bike.position.back[0]}, ${state.bike.position.back[1]}`,
-      state.bike.position.back[0], height - 210);
-    this.ctx.fillText(
-      `Front pos: ${state.bike.position.front[0]}, ${state.bike.position.front[1]}`,
-      state.bike.position.back[0], height - 190);
+
+    statsMap.forEach((item, index) => {
+      this.ctx.fillText(
+        `${item.label}: ${item.value}`,
+        state.bike.position.back[0],
+        height - (index + 1) * 20
+      );
+    });
   }
 
   render(store) {
@@ -62,21 +103,22 @@ class BikeComponent extends Component {
     this.ctx.translate(imagePosition[0], imagePosition[1] + BIKE_HEIGHT);
     this.ctx.rotate(state.bike.angle);
     this.ctx.translate(0, 0);
-    this.ctx.drawImage(
-      this.bikeImage,
-      0,
-      BIKE_TRACK_OFFSET,
-      BIKE_WIDTH,
-      BIKE_HEIGHT
-    );
+
+    this.bikeSprite.render();
     this.ctx.restore();
 
-    this.x += state.bike.velocity;
+    this.x += state.bike.velocity * state.game.dt;
 
-    store.dispatch(updateBike(state.track.points, this.x));
+    store.dispatch(updateBike(
+      state.track.points, state.bike.velocity, state.bike.stamina, this.x));
+
     if (this.x > this.canvas.width / 2) {
-      store.dispatch(updateCameraOffset(state.bike.velocity));
+      store.dispatch(updateCameraOffset(state.bike.velocity * state.game.dt));
     }
+
+    const speed = parseInt(state.bike.velocity / 180, 10);
+    this.bikeSprite.speed = speed || 1;
+    this.bikeSprite.update(state.game.dt);
 
     this.renderStats(state);
   }

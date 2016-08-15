@@ -17,3 +17,6 @@ export const UPDATE_BIKE = 'UPDATE_BIKE';
 
 // Camera
 export const UPDATE_CAMERA_OFFSET = 'UPDATE_CAMERA_OFFSET';
+
+// Game
+export const UPDATE_GAME_TIME = 'UPDATE_GAME_TIME';

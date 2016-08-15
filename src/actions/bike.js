@@ -1,6 +1,5 @@
 import {
   INIT_BIKE,
-  UPDATE_BIKE_POSITION,
   INCREASE_BIKE_VELOCITY,
   DECREASE_BIKE_VELOCITY,
   UPDATE_BIKE,
@@ -8,6 +7,9 @@ import {
 
 import {
   BIKE_WIDTH,
+  BIKE_MAX_VELOCITY,
+  BIKE_VELOCITY_FACTOR,
+  BIKE_IDLE_VELOCITY,
 } from '../constants';
 
 export function initBike(bike) {
@@ -17,15 +19,33 @@ export function initBike(bike) {
   };
 }
 
-export function increaseBikeVelocity() {
+export function increaseBikeVelocity(velocity) {
+  let newVelocity = velocity;
+
+  if (velocity < BIKE_MAX_VELOCITY) {
+    newVelocity = velocity + BIKE_VELOCITY_FACTOR;
+  }
+
   return {
     type: INCREASE_BIKE_VELOCITY,
+    payload: {
+      velocity: newVelocity,
+    },
   };
 }
 
-export function decreaseBikeVelocity() {
+export function decreaseBikeVelocity(velocity) {
+  let newVelocity = velocity;
+
+  if (velocity > BIKE_IDLE_VELOCITY) {
+    newVelocity = velocity - BIKE_VELOCITY_FACTOR;
+  }
+
   return {
     type: DECREASE_BIKE_VELOCITY,
+    payload: {
+      velocity: newVelocity,
+    },
   };
 }
 
@@ -82,10 +102,24 @@ function calculateTrackAngle(frontPosition, backPosition) {
   return angleRadians;
 }
 
-export function updateBike(trackPoints, x) {
+function calculateStamina(stamina, force, velocity) {
+  // TODO: recovering
+  // if (velocity === BIKE_IDLE_VELOCITY) return stamina;
+
+  const foo = force * 0.001;
+  return stamina + foo;
+}
+
+export function updateBike(trackPoints, velocity, stamina, x) {
   const back = getPosition(trackPoints, x);
   const front = getPosition(trackPoints, x + BIKE_WIDTH);
   const angle = calculateTrackAngle(front, back);
+
+  // TODO: mass
+  const G = 86 * 10;
+  const force = G * Math.sin(angle);
+
+  const updatedStamina = calculateStamina(stamina, force, velocity);
 
   return {
     type: UPDATE_BIKE,
@@ -95,6 +129,8 @@ export function updateBike(trackPoints, x) {
         back,
         front,
       },
+      force,
+      stamina: updatedStamina,
     },
   };
 }
