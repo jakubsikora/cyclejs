@@ -1,6 +1,7 @@
 import {
   increaseBikeVelocity,
   decreaseBikeVelocity,
+  useEnergyFuel,
 } from './actions/bike';
 
 class Keys {
@@ -20,6 +21,10 @@ class Keys {
 
       case 'ArrowRight':
         store.dispatch(increaseBikeVelocity(state.bike.velocity));
+        break;
+
+      case 'KeyE':
+        store.dispatch(useEnergyFuel(state.bike.energyFuel, state.bike.energy));
         break;
 
       default:

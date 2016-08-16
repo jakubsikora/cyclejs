@@ -3,6 +3,7 @@ import {
   INCREASE_BIKE_VELOCITY,
   DECREASE_BIKE_VELOCITY,
   UPDATE_BIKE,
+  USE_ENERGY_FUEL,
 } from '../actionTypes';
 
 import {
@@ -10,6 +11,10 @@ import {
   BIKE_MAX_VELOCITY,
   BIKE_VELOCITY_FACTOR,
   BIKE_IDLE_VELOCITY,
+  ENERGY_VELOCITY_FACTOR,
+  ENERGY_FORCE_FACTOR,
+  ENERGY_FUEL_AMOUNT,
+  ENERGY_INITIAL,
 } from '../constants';
 
 export function initBike(bike) {
@@ -102,15 +107,24 @@ function calculateTrackAngle(frontPosition, backPosition) {
   return angleRadians;
 }
 
-function calculateStamina(stamina, force, velocity) {
-  // TODO: recovering
-  // if (velocity === BIKE_IDLE_VELOCITY) return stamina;
+function calculateEnergy(energy, force, velocity) {
+  if (velocity > BIKE_IDLE_VELOCITY) {
+    const velocityDiff = velocity - BIKE_IDLE_VELOCITY;
+    const energyWithVelocity = velocityDiff * ENERGY_VELOCITY_FACTOR;
 
-  const foo = force * 0.001;
-  return stamina + foo;
+    let energyWithForce = 0;
+
+    if (force < 0) {
+      energyWithForce = force * ENERGY_FORCE_FACTOR;
+    }
+
+    return energy - energyWithVelocity + energyWithForce;
+  }
+
+  return energy;
 }
 
-export function updateBike(trackPoints, velocity, stamina, x) {
+export function updateBike(trackPoints, velocity, energy, x) {
   const back = getPosition(trackPoints, x);
   const front = getPosition(trackPoints, x + BIKE_WIDTH);
   const angle = calculateTrackAngle(front, back);
@@ -119,7 +133,13 @@ export function updateBike(trackPoints, velocity, stamina, x) {
   const G = 86 * 10;
   const force = G * Math.sin(angle);
 
-  const updatedStamina = calculateStamina(stamina, force, velocity);
+  const updatedEnergy = calculateEnergy(energy, force, velocity);
+
+  let newVelocity = velocity;
+
+  if (updatedEnergy <= 0) {
+    newVelocity = BIKE_IDLE_VELOCITY;
+  }
 
   return {
     type: UPDATE_BIKE,
@@ -130,7 +150,26 @@ export function updateBike(trackPoints, velocity, stamina, x) {
         front,
       },
       force,
-      stamina: updatedStamina,
+      energy: updatedEnergy < 0 ? 0 : updatedEnergy,
+      velocity: newVelocity,
+    },
+  };
+}
+
+export function useEnergyFuel(energyFuel, energy) {
+  let newEnergy = energy;
+
+  if (energyFuel > 0) {
+    newEnergy = energy + ENERGY_FUEL_AMOUNT > 100
+      ? ENERGY_INITIAL
+      : energy + ENERGY_FUEL_AMOUNT;
+  }
+
+  return {
+    type: USE_ENERGY_FUEL,
+    payload: {
+      energyFuel: energyFuel > 0 ? energyFuel - 1 : 0,
+      energy: newEnergy,
     },
   };
 }

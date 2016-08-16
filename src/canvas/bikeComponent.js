@@ -68,8 +68,12 @@ class BikeComponent extends Component {
         value: `${state.game.dt}s`,
       },
       {
-        label: 'Stamina',
-        value: `${state.bike.stamina}`,
+        label: 'Energy',
+        value: `${parseInt(state.bike.energy, 10)}%`,
+      },
+      {
+        label: 'Energy bars',
+        value: `${state.bike.energyFuel}`,
       },
     ];
 
@@ -110,7 +114,7 @@ class BikeComponent extends Component {
     this.x += state.bike.velocity * state.game.dt;
 
     store.dispatch(updateBike(
-      state.track.points, state.bike.velocity, state.bike.stamina, this.x));
+      state.track.points, state.bike.velocity, state.bike.energy, this.x));
 
     if (this.x > this.canvas.width / 2) {
       store.dispatch(updateCameraOffset(state.bike.velocity * state.game.dt));

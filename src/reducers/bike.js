@@ -2,11 +2,13 @@ import {
   INCREASE_BIKE_VELOCITY,
   DECREASE_BIKE_VELOCITY,
   UPDATE_BIKE,
+  USE_ENERGY_FUEL,
 } from '../actionTypes';
 
 import {
   BIKE_IDLE_VELOCITY,
-  BIKE_STAMINA_INITIAL,
+  ENERGY_INITIAL,
+  HR_INITIAL,
 } from '../constants';
 
 const initialState = {
@@ -17,7 +19,9 @@ const initialState = {
   velocity: BIKE_IDLE_VELOCITY,
   angle: 0,
   force: 0,
-  stamina: BIKE_STAMINA_INITIAL,
+  energy: ENERGY_INITIAL,
+  energyFuel: 3,
+  hr: HR_INITIAL,
 };
 
 export default function bike(state = initialState, action) {
@@ -38,7 +42,13 @@ export default function bike(state = initialState, action) {
           front: action.payload.position.front,
         },
         force: action.payload.force,
-        stamina: action.payload.stamina,
+        energy: action.payload.energy,
+        velocity: action.payload.velocity,
+      };
+    case USE_ENERGY_FUEL:
+      return { ...state,
+        energyFuel: action.payload.energyFuel,
+        energy: action.payload.energy,
       };
     default:
       return state;
