@@ -2,7 +2,7 @@ var webpack = require('webpack');
 var express = require('express');
 
 var app = new (express)();
-var port = 3000;
+var port = process.env.PORT || 3000;
 
 app.use('/static', express.static(__dirname + '/dist'));
 app.use('/assets', express.static(__dirname + '/assets'));
