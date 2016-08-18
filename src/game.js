@@ -38,14 +38,20 @@ class Game {
   }
 
   init() {
+    const state = this.store.getState();
+
     // Set the canvas components
     this.stage = new StageComponent(canvas);
     this.track = new TrackComponent(canvas);
     this.camera = new CameraComponent(canvas);
     this.bike = new BikeComponent(canvas);
 
-    this.animate();
     this.setEventHandlers();
+
+    if (state.game.started) {
+      this.animate();
+    }
+
   }
 
   animate() {

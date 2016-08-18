@@ -3,6 +3,7 @@ import {
 } from '../actionTypes';
 
 const initialState = {
+  started: false,
   dt: 0,
 };
 
