@@ -1,5 +1,6 @@
 import { applyMiddleware, createStore } from 'redux';
 import createLogger from 'redux-logger';
+import client from './client.js';
 import reducer from './reducers/index';
 import Keys from './keys';
 import raf from 'raf';
@@ -40,18 +41,17 @@ class Game {
   init() {
     const state = this.store.getState();
 
-    // Set the canvas components
-    this.stage = new StageComponent(canvas);
-    this.track = new TrackComponent(canvas);
-    this.camera = new CameraComponent(canvas);
-    this.bike = new BikeComponent(canvas);
-
     this.setEventHandlers();
 
     if (state.game.started) {
+      // Set the canvas components
+      this.stage = new StageComponent(canvas);
+      this.track = new TrackComponent(canvas);
+      this.camera = new CameraComponent(canvas);
+      this.bike = new BikeComponent(canvas);
+
       this.animate();
     }
-
   }
 
   animate() {

@@ -22,7 +22,6 @@
     "max-len": [2, {
       code: 80,
       tabWidth: 2,
-      ignorePattern: "\\$filter\\('i18n'\\)|^import",
       ignoreUrls: true
     }],
 

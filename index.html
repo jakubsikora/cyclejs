@@ -4,15 +4,36 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta http-equiv="Content-Language" content="EN-GB">
-    <title>Cycling JS</title>
+    <title>Cycling Game</title>
+    <link rel="stylesheet" type="text/css" href="/static/bundle.css">
   </head>
   <body>
     <canvas id="canvas"></canvas>
-    <div id="lobby"></div>
+    <div id="lobby" class="container">
+      <div class="row">
+        <div class="col-md-8 table-responsive">
+          <h4>Room list</h4>
+          <table class="table table-condensed table-bordered">
+            <tr class="active">
+              <th>Room name</th>
+              <th>Number of players</th>
+            </tr>
+            <tr>
+              <th>Foo</th>
+              <th>1</th>
+            </tr>
+          </table>
+        </div>
+        <div class="col-md-4">
+          <h4>Players list</h4>
+          <ul class="list-group">
+            <li class="list-group-item">Foo</li>
+            <li class="list-group-item">Bar</li>
+          </ul>
+        </div>
+      </div>
+    </div>
     <script src="/socket.io/socket.io.js"></script>
-    <script>
-      var socket = io();
-    </script>
     <script src="/static/bundle.js"></script>
   </body>
 </html>
