@@ -12,3 +12,4 @@ Avg speed on flat 25 to 28 mph.
         + static design - add bootstrap to the project
         + bring socket.io
         + wire with the lobby
+        + move emit events to constants

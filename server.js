@@ -27,7 +27,22 @@ const port = process.env.PORT || 8080;
 const users = [];
 
 const DEFAULT_ROOM = 'Lobby';
-const rooms = [DEFAULT_ROOM];
+const rooms = [{
+  name: DEFAULT_ROOM,
+  numberOfPlayers: 0,
+}];
+
+// Socket IO shortcuts
+const sendToClient = (socket, type, data) => socket.emit(type, data);
+const sendToOthers = (socket, type, data) => socket.broadcast.emit(type, data);
+const sendToAll = (type, data) => io.sockets.emit(type, data);
+
+// Helpers
+const decreasePlayersFromRoom = (socket) => {
+  // Decrease number of users in the room
+  const socketRoom = rooms.filter(room => room.name === socket.room.name)[0];
+  socketRoom.numberOfPlayers--;
+};
 
 server.listen(port, function (error) {
   if (error) {
@@ -39,26 +54,48 @@ server.listen(port, function (error) {
 
 io.on('connection', function (socket) {
   socket.on('adduser', function (username) {
+    // Update default room
+    rooms[0].numberOfPlayers++;
+
     users.push({
       username,
-      room: DEFAULT_ROOM,
+      room: rooms[0],
     });
 
-    console.log(`${users.length} user(s) connected`);
-
     socket.username = username;
-    socket.room = DEFAULT_ROOM;
-    socket.join(DEFAULT_ROOM);
+    socket.room = rooms[0];
+    socket.join(rooms[0].name);
 
-    // Send message back to the socket which starts.
-    socket.emit('updateusers', users);
+    sendToClient(socket, 'updateusers', { users, currentUser: socket.username });
+    sendToClient(socket, 'updaterooms', { rooms, currentRoom: socket.room });
+    sendToOthers(socket, 'updateusers', { users });
+    sendToOthers(socket, 'updaterooms', { rooms });
+  });
 
-    // Send message to all users except for the socket that starts it.
-    socket.broadcast.emit('updateusers', users);
+  socket.on('createroom', function (name) {
+    rooms.push({
+      name,
+      numberOfPlayers: 1,
+    });
+
+    decreasePlayersFromRoom(socket);
+
+    sendToClient(socket, 'updaterooms', { rooms, currentRoom: socket.room });
+    sendToOthers(socket, 'updaterooms', { rooms });
   });
 
   socket.on('disconnect', function () {
-    users.splice(users.indexOf(socket.io));
-    console.log(`user ${socket.id} disconnected. ${users.length} user(s) connected`);
+    users.forEach((user, index) => {
+      if (user.username === socket.username) {
+        users.splice(index, 1);
+      }
+    });
+
+    // Send to all clients
+    sendToAll('updateusers', { users });
+
+    decreasePlayersFromRoom(socket);
+    socket.leave(socket.room);
+    sendToAll('updaterooms', { rooms });
   });
 });
