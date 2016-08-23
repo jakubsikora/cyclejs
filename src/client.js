@@ -1,7 +1,6 @@
-const DEFAULT_ROOM = 'Lobby';
-
-class Client {
-  constructor() {
+export default class Client {
+  constructor(store) {
+    this.store = store;
     this.socket = io();
     this.username = null;
 
@@ -88,5 +87,3 @@ class Client {
     });
   }
 }
-
-export default new Client();

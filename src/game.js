@@ -1,6 +1,6 @@
 import { applyMiddleware, createStore } from 'redux';
 import createLogger from 'redux-logger';
-import client from './client.js';
+import Client from './client.js';
 import reducer from './reducers/index';
 import Keys from './keys';
 import raf from 'raf';
@@ -32,6 +32,8 @@ class Game {
       reducer,
       applyMiddleware(logger)
     );
+
+    this.localClient = new Client(this.store);
 
     this.stage = null;
     this.bike = null;
