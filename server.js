@@ -43,7 +43,10 @@ const decreasePlayersFromRoom = (socket) => {
 const sendToClient = (socket, type, data) => socket.emit(type, data);
 const sendToOthers = (socket, type, data) => socket.broadcast.emit(type, data);
 const sendToAll = (type, data) => io.sockets.emit(type, data);
-const onAddUser = data => {
+
+// Socket IO callbacks
+const onAddUser = function (data) {
+  console.log('data', data);
   // Update default room
   rooms[0].numberOfPlayers++;
 
@@ -56,13 +59,13 @@ const onAddUser = data => {
   this.room = rooms[0];
   this.join(rooms[0].name);
 
-  sendToClient(this, 'updateusers', { users, currentUser: this.username });
+  sendToClient(this, 'updateusers', { users, localUsername: this.username });
   sendToClient(this, 'updaterooms', { rooms, currentRoom: this.room });
   sendToOthers(this, 'updateusers', { users });
   sendToOthers(this, 'updaterooms', { rooms });
 };
 
-const onCreateRoom = data => {
+const onCreateRoom = function (data) {
   rooms.push({
     name: data.name,
     numberOfPlayers: 1,
@@ -74,7 +77,7 @@ const onCreateRoom = data => {
   sendToOthers(this, 'updaterooms', { rooms });
 };
 
-const onDisconnect = () => {
+const onDisconnect = function () {
   users.forEach((user, index) => {
     if (user.username === this.username) {
       users.splice(index, 1);
@@ -89,7 +92,7 @@ const onDisconnect = () => {
   sendToAll('updaterooms', { rooms });
 };
 
-const onDispatch = data => {
+const onDispatch = function (data) {
   sendToOthers(this, 'dispatch', data);
 };
 
@@ -108,4 +111,4 @@ server.listen(port, function (error) {
   }
 });
 
-io.on('connection', socket => setEventsHandler(socket));
+io.on('connection', setEventsHandler);

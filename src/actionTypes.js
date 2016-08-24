@@ -23,7 +23,7 @@ export const UPDATE_CAMERA_OFFSET = 'UPDATE_CAMERA_OFFSET';
 export const UPDATE_GAME_TIME = 'UPDATE_GAME_TIME';
 
 // Client
-export const ADD_USER = 'ADD_USER';
+export const ADD_USERS = 'ADD_USERS';
 export const UPDATE_USERS = 'UPDATE_USERS';
 export const CREATE_ROOM = 'CREATE_ROOM';
 export const UPDATE_ROOMS = 'UPDATE_ROOMS';

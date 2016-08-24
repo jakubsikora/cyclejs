@@ -1,9 +1,11 @@
 import lobbyView from './view/lobby';
+import { addUser } from './actions/users';
+
+const socket = io();
 
 export default class Lobby {
   constructor(store) {
     this.store = store;
-    this.socket = io();
     this.username = null;
 
     this.setEventsHandler();
@@ -16,24 +18,29 @@ export default class Lobby {
       this.createRoom();
     });
 
-    this.socket.on('connect', this.onSocketConnect);
-    this.socket.on('updateusers', this.onUpdateUsers);
-    this.socket.on('updaterooms', this.onUpdateRooms);
-    this.socket.on('dispatch', this.onSocketDispatch);
+    socket.on('connect', this.onSocketConnect);
+    socket.on('updateusers', this.onUpdateUsers.bind(this));
+    socket.on('updaterooms', this.onUpdateRooms);
+    socket.on('dispatch', this.onSocketDispatch);
   }
 
   onSocketConnect() {
-    this.socket.emit(
-      'adduser', `User${Math.floor(Math.random() * (1000 - 0 + 1))}`);
+    socket.emit(
+      'adduser',
+      {
+        username: `User${Math.floor(Math.random() * (1000 - 0 + 1))}`,
+      });
   }
 
   onUpdateUsers(data) {
     // Update current user
-    if (data.currentUser) {
-      this.username = data.currentUser;
+    if (data.localUsername) {
+      this.username = data.localUsername;
     }
 
-    lobbyView.updatePlayersList(data.users);
+    this.store.dispatch(addUser(data.users, this.username));
+
+    lobbyView.updatePlayersList(data.users, this.username);
   }
 
   onUpdateRooms(data) {
@@ -46,7 +53,11 @@ export default class Lobby {
 
   createRoom() {
     // TODO: modal
-    this.socket.emit(
-      'createroom', `Room${Math.floor(Math.random() * (1000 - 0 + 1))}`);
+    socket.emit(
+      'createroom',
+      {
+        name: `Room${Math.floor(Math.random() * (1000 - 0 + 1))}`,
+      }
+    );
   }
 }

@@ -1,5 +1,5 @@
 class LobbyView {
-  updatePlayersList(users) {
+  updatePlayersList(users, currentUser) {
     const playersListTable = document.getElementById('players-list');
 
     // Clear the table, keep the header
@@ -16,7 +16,7 @@ class LobbyView {
 
       userNameCell.appendChild(document.createTextNode(user.username));
 
-      if (user.username === this.username) {
+      if (user.username === currentUser) {
         newRow.classList.add('success');
       }
 
