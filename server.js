@@ -32,16 +32,72 @@ const rooms = [{
   numberOfPlayers: 0,
 }];
 
-// Socket IO shortcuts
-const sendToClient = (socket, type, data) => socket.emit(type, data);
-const sendToOthers = (socket, type, data) => socket.broadcast.emit(type, data);
-const sendToAll = (type, data) => io.sockets.emit(type, data);
-
 // Helpers
 const decreasePlayersFromRoom = (socket) => {
   // Decrease number of users in the room
   const socketRoom = rooms.filter(room => room.name === socket.room.name)[0];
   socketRoom.numberOfPlayers--;
+};
+
+// Socket IO shortcuts
+const sendToClient = (socket, type, data) => socket.emit(type, data);
+const sendToOthers = (socket, type, data) => socket.broadcast.emit(type, data);
+const sendToAll = (type, data) => io.sockets.emit(type, data);
+const onAddUser = data => {
+  // Update default room
+  rooms[0].numberOfPlayers++;
+
+  users.push({
+    username: data.username,
+    room: rooms[0],
+  });
+
+  this.username = data.username;
+  this.room = rooms[0];
+  this.join(rooms[0].name);
+
+  sendToClient(this, 'updateusers', { users, currentUser: this.username });
+  sendToClient(this, 'updaterooms', { rooms, currentRoom: this.room });
+  sendToOthers(this, 'updateusers', { users });
+  sendToOthers(this, 'updaterooms', { rooms });
+};
+
+const onCreateRoom = data => {
+  rooms.push({
+    name: data.name,
+    numberOfPlayers: 1,
+  });
+
+  decreasePlayersFromRoom(this);
+
+  sendToClient(this, 'updaterooms', { rooms, currentRoom: this.room });
+  sendToOthers(this, 'updaterooms', { rooms });
+};
+
+const onDisconnect = () => {
+  users.forEach((user, index) => {
+    if (user.username === this.username) {
+      users.splice(index, 1);
+    }
+  });
+
+  // Send to all clients
+  sendToAll('updateusers', { users });
+
+  decreasePlayersFromRoom(this);
+  this.leave(this.room);
+  sendToAll('updaterooms', { rooms });
+};
+
+const onDispatch = data => {
+  sendToOthers(this, 'dispatch', data);
+};
+
+const setEventsHandler = (socket) => {
+  socket.on('adduser', onAddUser);
+  socket.on('createroom', onCreateRoom);
+  socket.on('disconnect', onDisconnect);
+  socket.on('dispatch', onDispatch);
 };
 
 server.listen(port, function (error) {
@@ -52,50 +108,4 @@ server.listen(port, function (error) {
   }
 });
 
-io.on('connection', function (socket) {
-  socket.on('adduser', function (username) {
-    // Update default room
-    rooms[0].numberOfPlayers++;
-
-    users.push({
-      username,
-      room: rooms[0],
-    });
-
-    socket.username = username;
-    socket.room = rooms[0];
-    socket.join(rooms[0].name);
-
-    sendToClient(socket, 'updateusers', { users, currentUser: socket.username });
-    sendToClient(socket, 'updaterooms', { rooms, currentRoom: socket.room });
-    sendToOthers(socket, 'updateusers', { users });
-    sendToOthers(socket, 'updaterooms', { rooms });
-  });
-
-  socket.on('createroom', function (name) {
-    rooms.push({
-      name,
-      numberOfPlayers: 1,
-    });
-
-    decreasePlayersFromRoom(socket);
-
-    sendToClient(socket, 'updaterooms', { rooms, currentRoom: socket.room });
-    sendToOthers(socket, 'updaterooms', { rooms });
-  });
-
-  socket.on('disconnect', function () {
-    users.forEach((user, index) => {
-      if (user.username === socket.username) {
-        users.splice(index, 1);
-      }
-    });
-
-    // Send to all clients
-    sendToAll('updateusers', { users });
-
-    decreasePlayersFromRoom(socket);
-    socket.leave(socket.room);
-    sendToAll('updaterooms', { rooms });
-  });
-});
+io.on('connection', socket => setEventsHandler(socket));

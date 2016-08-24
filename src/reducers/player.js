@@ -2,9 +2,7 @@ import {
   ADD_USER,
 } from '../actionTypes';
 
-const initialState = {
-  initialized: false,
-};
+const initialState = {};
 
 export default function client(state = initialState, action) {
   switch (action.type) {
