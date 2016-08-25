@@ -46,22 +46,24 @@ const sendToAll = (type, data) => io.sockets.emit(type, data);
 
 // Socket IO callbacks
 const onAddUser = function (data) {
-  console.log('data', data);
+  const user = {
+    username: data.username,
+    room: rooms[0],
+    isLocal: false,
+  };
+
   // Update default room
   rooms[0].numberOfPlayers++;
 
-  users.push({
-    username: data.username,
-    room: rooms[0],
-  });
+  users.push(user);
 
-  this.username = data.username;
+  this.username = user.username;
   this.room = rooms[0];
   this.join(rooms[0].name);
 
-  sendToClient(this, 'updateusers', { users, localUsername: this.username });
+  sendToClient(this, 'adduser', { ...user, isLocal: true });
   sendToClient(this, 'updaterooms', { rooms, currentRoom: this.room });
-  sendToOthers(this, 'updateusers', { users });
+  sendToOthers(this, 'adduser', { ...user });
   sendToOthers(this, 'updaterooms', { rooms });
 };
 

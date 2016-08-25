@@ -19,7 +19,7 @@ export default class Lobby {
     });
 
     socket.on('connect', this.onSocketConnect);
-    socket.on('updateusers', this.onUpdateUsers.bind(this));
+    socket.on('adduser', this.onAddUsers.bind(this));
     socket.on('updaterooms', this.onUpdateRooms);
     socket.on('dispatch', this.onSocketDispatch);
   }
@@ -32,15 +32,18 @@ export default class Lobby {
       });
   }
 
-  onUpdateUsers(data) {
+  onAddUsers(user) {
     // Update current user
-    if (data.localUsername) {
-      this.username = data.localUsername;
+    if (user.isLocal) {
+      this.username = user.username;
     }
 
-    this.store.dispatch(addUser(data.users, this.username));
+    this.store.dispatch(addUser(user));
 
-    lobbyView.updatePlayersList(data.users, this.username);
+    lobbyView.updatePlayersList(
+      this.store.getState().users,
+      this.username
+    );
   }
 
   onUpdateRooms(data) {
