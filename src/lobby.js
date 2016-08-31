@@ -7,6 +7,8 @@ export default class Lobby {
   constructor(store) {
     this.store = store;
     this.username = null;
+    this.startTime = Date.now();
+    this.latency = 0;
 
     this.setEventsHandler();
   }
@@ -22,6 +24,7 @@ export default class Lobby {
     socket.on('adduser', this.onAddUsers.bind(this));
     socket.on('updaterooms', this.onUpdateRooms);
     socket.on('dispatch', this.onSocketDispatch);
+    socket.on('pong', this.onPong);
   }
 
   onSocketConnect() {
@@ -30,6 +33,11 @@ export default class Lobby {
       {
         username: `User${Math.floor(Math.random() * (1000 - 0 + 1))}`,
       });
+
+    setInterval(() => {
+      this.startTime = Date.now();
+      socket.emit('ping-client');
+    }, 2000);
   }
 
   onAddUsers(user) {
@@ -52,6 +60,11 @@ export default class Lobby {
 
   onSocketDispatch(data) {
     this.store.dispatch(data);
+  }
+
+  onPong() {
+    this.latency = Date.now() - this.startTime;
+    lobbyView.updateLatency(parseInt(this.latency, 10));
   }
 
   createRoom() {

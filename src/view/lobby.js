@@ -44,6 +44,10 @@ class LobbyView {
         document.createTextNode(room.numberOfPlayers));
     });
   }
+
+  updateLatency(latency) {
+    document.getElementById('latency').innerHTML = latency;
+  }
 }
 
 export default new LobbyView();

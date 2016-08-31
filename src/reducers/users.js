@@ -4,7 +4,7 @@ import {
 
 const user = (state, action) => {
   switch (action.type) {
-    case 'ADD_USER':
+    case ADD_USER:
       return {
         username: action.payload.username,
         isLocal: action.payload.isLocal,

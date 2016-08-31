@@ -8,6 +8,7 @@ export function addUser(user) {
     payload: {
       username: user.username,
       isLocal: user.isLocal,
+      room: user.room,
     },
   };
 }

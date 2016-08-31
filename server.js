@@ -59,12 +59,13 @@ const onAddUser = function (data) {
 
   this.username = user.username;
   this.room = rooms[0];
+
   this.join(rooms[0].name);
 
-  sendToClient(this, 'adduser', { ...user, isLocal: true });
-  sendToClient(this, 'updaterooms', { rooms, currentRoom: this.room });
-  sendToOthers(this, 'adduser', { ...user });
-  sendToOthers(this, 'updaterooms', { rooms });
+  sendToClient(this, 'adduser', Object.assign({}, user, { isLocal: true }));
+  // sendToClient(this, 'updaterooms', { rooms, currentRoom: this.room });
+  // sendToOthers(this, 'adduser', { ...user });
+  // sendToOthers(this, 'updaterooms', { rooms });
 };
 
 const onCreateRoom = function (data) {
@@ -98,11 +99,16 @@ const onDispatch = function (data) {
   sendToOthers(this, 'dispatch', data);
 };
 
+const onPing = function () {
+  sendToClient(this, 'pong');
+};
+
 const setEventsHandler = (socket) => {
   socket.on('adduser', onAddUser);
   socket.on('createroom', onCreateRoom);
   socket.on('disconnect', onDisconnect);
   socket.on('dispatch', onDispatch);
+  socket.on('ping-client', onPing);
 };
 
 server.listen(port, function (error) {
