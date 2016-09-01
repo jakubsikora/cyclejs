@@ -27,16 +27,22 @@ const port = process.env.PORT || 8080;
 const users = [];
 
 const DEFAULT_ROOM = 'Lobby';
-const rooms = [{
-  name: DEFAULT_ROOM,
-  numberOfPlayers: 0,
-}];
+const rooms = [];
 
 // Helpers
-const decreasePlayersFromRoom = (socket) => {
-  // Decrease number of users in the room
-  const socketRoom = rooms.filter(room => room.name === socket.room.name)[0];
-  socketRoom.numberOfPlayers--;
+const debug = function (output) {
+  const date = new Date();
+  const year = date.getFullYear();
+  const month = date.getMonth() < 10 ? `0${date.getMonth()}` : date.getMonth();
+  const day = date.getDate() < 10 ? `0${date.getDate()}` : date.getDate();
+  const dateText = `${year}-${month}-${day}`;
+
+  const hours = date.getHours() < 10 ? `0${date.getHours()}` : date.getHours();
+  const minutes = date.getMinutes() < 10 ? `0${date.getMinutes()}` : date.getMinutes();
+  const seconds = date.getSeconds() < 10 ? `0${date.getSeconds()}` : date.getSeconds();
+  const timeText = `${hours}:${minutes}:${seconds}`;
+
+  console.log(`${dateText} ${timeText} - ${output}`);
 };
 
 // Socket IO shortcuts
@@ -44,55 +50,118 @@ const sendToClient = (socket, type, data) => socket.emit(type, data);
 const sendToOthers = (socket, type, data) => socket.broadcast.emit(type, data);
 const sendToAll = (type, data) => io.sockets.emit(type, data);
 
+const getRoom = function (name) {
+  return rooms.filter(room => room.name === name)[0];
+};
+
+const createRoom = function (name) {
+  debug(`New room: "${name}" has been created.`);
+
+  rooms.push({
+    name,
+    users: [],
+  });
+};
+
+const joinRoom = function (name, user, socket) {
+  rooms.some(room => {
+    if (room.name === name) {
+      room.users.push(user);
+
+      socket.join(room.name);
+      socket.room = room.name;
+
+      debug(`"${user.username}" joined the ${room.name}.`);
+
+      return true;
+    }
+
+    return false;
+  });
+};
+
+const leaveRoom = function (name, username, socket) {
+  socket.leave(name);
+
+  rooms.some((room, roomIndex) => {
+    if (room.name === name) {
+      room.users.some((user, index) => {
+        if (user.username === username) {
+          room.users.splice(index, 1);
+
+          if (!room.users.length) {
+            rooms.splice(roomIndex, 1);
+          }
+
+          return true;
+        }
+
+        return false;
+      });
+
+      return true;
+    }
+
+    return false;
+  });
+
+  sendToAll('updaterooms', rooms);
+};
+
 // Socket IO callbacks
 const onAddUser = function (data) {
-  const user = {
-    username: data.username,
-    room: rooms[0],
-    isLocal: false,
-  };
-
   // Update default room
-  rooms[0].numberOfPlayers++;
+  const user = {
+    id: this.id,
+    username: data.username,
+  };
 
   users.push(user);
 
-  this.username = user.username;
-  this.room = rooms[0];
+  this.user = user;
 
-  this.join(rooms[0].name);
+  joinRoom(DEFAULT_ROOM, user, this);
 
-  sendToClient(this, 'adduser', Object.assign({}, user, { isLocal: true }));
-  // sendToClient(this, 'updaterooms', { rooms, currentRoom: this.room });
-  // sendToOthers(this, 'adduser', { ...user });
-  // sendToOthers(this, 'updaterooms', { rooms });
+  // User
+  sendToClient(this, 'adduser', user);
+  sendToClient(this, 'updateusers', users);
+  sendToOthers(this, 'updateusers', users);
+
+  // Room
+  sendToClient(this, 'addroom', getRoom(DEFAULT_ROOM));
+  sendToClient(this, 'updaterooms', rooms);
+  sendToOthers(this, 'updaterooms', rooms);
 };
 
 const onCreateRoom = function (data) {
-  rooms.push({
-    name: data.name,
-    numberOfPlayers: 1,
-  });
+  if (this.room !== DEFAULT_ROOM) {
+    leaveRoom(this.room, this.user.username, this);
+  }
 
-  decreasePlayersFromRoom(this);
+  createRoom(data.name);
+  joinRoom(data.name, this.user, this);
 
-  sendToClient(this, 'updaterooms', { rooms, currentRoom: this.room });
-  sendToOthers(this, 'updaterooms', { rooms });
+  sendToClient(this, 'addroom', getRoom(data.name));
+  sendToClient(this, 'updaterooms', rooms);
+  sendToOthers(this, 'updaterooms', rooms);
 };
 
 const onDisconnect = function () {
-  users.forEach((user, index) => {
-    if (user.username === this.username) {
+  users.some((user, index) => {
+    if (user.username === this.user.username) {
       users.splice(index, 1);
+
+      debug(`"${user.username}" left the ${this.room}.`);
+      return true;
     }
+
+    return false;
   });
 
   // Send to all clients
-  sendToAll('updateusers', { users });
+  sendToAll('updateusers', users);
 
-  decreasePlayersFromRoom(this);
-  this.leave(this.room);
-  sendToAll('updaterooms', { rooms });
+  leaveRoom(this.room, this.user.username, this);
 };
 
 const onDispatch = function (data) {
@@ -118,5 +187,7 @@ server.listen(port, function (error) {
     console.info('==> 🌎  Listening on port %s. Open up http://localhost:%s/ in your browser.', port, port);
   }
 });
+
+createRoom(DEFAULT_ROOM);
 
 io.on('connection', setEventsHandler);

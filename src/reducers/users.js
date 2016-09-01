@@ -1,14 +1,14 @@
 import {
   ADD_USER,
+  UPDATE_USERS,
 } from '../actionTypes';
 
 const user = (state, action) => {
   switch (action.type) {
     case ADD_USER:
       return {
+        id: action.payload.id,
         username: action.payload.username,
-        isLocal: action.payload.isLocal,
-        room: action.payload.room,
       };
 
     default:
@@ -25,6 +25,8 @@ const users = (state = initialState, action) => {
         ...state,
         user(undefined, action),
       ];
+    case UPDATE_USERS:
+      return action.payload.users;
     default:
       return state;
   }

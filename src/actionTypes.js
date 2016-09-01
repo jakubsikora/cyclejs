@@ -25,5 +25,5 @@ export const UPDATE_GAME_TIME = 'UPDATE_GAME_TIME';
 // Client
 export const ADD_USER = 'ADD_USER';
 export const UPDATE_USERS = 'UPDATE_USERS';
-export const CREATE_ROOM = 'CREATE_ROOM';
+export const ADD_ROOM = 'ADD_ROOM';
 export const UPDATE_ROOMS = 'UPDATE_ROOMS';

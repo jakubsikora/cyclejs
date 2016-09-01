@@ -12,7 +12,7 @@ class LobbyView {
     users.forEach((user, index) => {
       const newRow = playersListTable.insertRow(index + 1);
       const userNameCell = newRow.insertCell(0);
-      const roomCell = newRow.insertCell(1);
+      const idCell = newRow.insertCell(1);
 
       userNameCell.appendChild(document.createTextNode(user.username));
 
@@ -20,11 +20,11 @@ class LobbyView {
         newRow.classList.add('success');
       }
 
-      roomCell.appendChild(document.createTextNode(user.room.name));
+      idCell.appendChild(document.createTextNode(user.id));
     });
   }
 
-  updateRoomsList(rooms) {
+  updateRoomsList(rooms, currentRoom) {
     const roomsListTable = document.getElementById('rooms-list');
 
     // Clear the table, keep the header
@@ -41,7 +41,11 @@ class LobbyView {
 
       roomNameCell.appendChild(document.createTextNode(room.name));
       numberOfPlayersCell.appendChild(
-        document.createTextNode(room.numberOfPlayers));
+        document.createTextNode(room.users.length));
+
+      if (room.name === currentRoom) {
+        newRow.classList.add('success');
+      }
     });
   }
 
