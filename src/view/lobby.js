@@ -136,6 +136,8 @@ class LobbyView {
 
     p.innerHTML = message;
     chat.appendChild(p);
+
+    chat.scrollTop = chat.scrollHeight;
   }
 
   updateLatency(latency) {
