@@ -4,10 +4,48 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta http-equiv="Content-Language" content="EN-GB">
-    <title>Cycling JS</title>
+    <title>Cycling Game</title>
+    <link rel="stylesheet" type="text/css" href="/static/bundle.css">
   </head>
   <body>
     <canvas id="canvas"></canvas>
+    <div class="debug">
+      <h5>Latency: <span id="latency">0</span>ms</h5>
+    </div>
+    <div id="lobby" class="container lobby">
+      <div class="row">
+        <div class="col-md-4">
+          <div class="row">
+            <div class="col-md-12 table-responsive">
+              <div class="panel panel-primary">
+                <div class="panel-heading">ROOMS</div>
+                <ul id="rooms-list" class="rooms-list list-group"></ul>
+                <div class="panel-footer">
+                  <button class="btn btn-info btn-xs" id="create_room">CREATE ROOM</button>
+                  <button class="btn btn-success btn-xs">START GAME</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-8">
+          <div class="panel panel-info chat-wrapper">
+            <div class="panel-heading">CHAT</div>
+            <div class="panel-body chat-body"></div>
+            <div class="panel-footer">
+              <div class="input-group">
+                <input type="text" class="form-control" placeholder="Enter Message" id="send-message">
+                <span class="input-group-btn">
+                  <button class="btn btn-info" type="button" id="send-message-btn">SEND</button>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
     <script src="/static/bundle.js"></script>
   </body>
 </html>

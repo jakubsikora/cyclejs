@@ -1,11 +1,14 @@
 var path = require('path');
 var webpack = require('webpack');
+var ExtractTextPlugin = require('extract-text-webpack-plugin');
+var extractCSS = new ExtractTextPlugin('bundle.css');
+var precss       = require('precss');
+var autoprefixer = require('autoprefixer');
 
 module.exports = {
   devtool: 'cheap-module-eval-source-map',
   entry: [
-    'webpack-dev-server/client?http://localhost:8080',
-    'webpack/hot/only-dev-server',
+    'webpack-hot-middleware/client',
     './index.js'
   ],
   output: {
@@ -16,7 +19,8 @@ module.exports = {
   plugins: [
     new webpack.optimize.OccurenceOrderPlugin(),
     new webpack.HotModuleReplacementPlugin(),
-    new webpack.NoErrorsPlugin()
+    new webpack.NoErrorsPlugin(),
+    extractCSS
   ],
   module: {
     loaders: [{
@@ -26,12 +30,15 @@ module.exports = {
       includes: ['./index.js', path.join(__dirname, 'src')]
     }, {
       test: /\.scss$/,
-      loaders: [
-        'style', 'css', 'autoprefixer-loader?browsers=last 2 versions', 'sass'
-      ]
+      loader: extractCSS.extract(
+        'style', 'css!postcss?sourceMap=inline!sass'
+      )
     }, {
       test: /\.(png|jpg|ttf|woff|svg|otf|eot|svg).*?$/,
       loader: 'file-loader'
     }]
+  },
+  postcss: function () {
+    return [precss, autoprefixer({ browsers: ['last 2 versions']})];
   }
 };
