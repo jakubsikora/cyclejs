@@ -47,6 +47,12 @@ canvas {
   flex-direction: column-reverse;
   position: relative;
 
+  .panel-heading {
+    position: absolute;
+    top: 0;
+    width: 100%;
+  }
+
   .chat-body {
     overflow: auto;
     flex-shrink: 1;
