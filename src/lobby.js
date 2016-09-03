@@ -17,9 +17,26 @@ export default class Lobby {
 
   setEventsHandler() {
     const createBtn = document.getElementById('create_room');
+    const sendMessageBtn = document.getElementById('send-message-btn');
+    const sendMessage = document.getElementById('send-message');
 
+    // TODO: move to separate methods
     createBtn.addEventListener('click', () => {
       this.createRoom();
+    });
+
+    sendMessageBtn.addEventListener('click', () => {
+      this.sendChatMessage(sendMessage.value);
+      sendMessage.value = '';
+      sendMessage.focus();
+    });
+
+    sendMessage.addEventListener('keyup', (e) => {
+      if (e.keyCode === 13) {
+        this.sendChatMessage(sendMessage.value);
+        sendMessage.value = '';
+        sendMessage.focus();
+      }
     });
 
     socket.on('connect', this.onSocketConnect);
@@ -29,6 +46,7 @@ export default class Lobby {
     socket.on('updaterooms', this.onUpdateRooms.bind(this));
     socket.on('dispatch', this.onSocketDispatch);
     socket.on('pong', this.onPong);
+    socket.on('chatmessage', this.onChatMessage);
   }
 
   onSocketConnect() {
@@ -54,19 +72,16 @@ export default class Lobby {
 
   onUpdateUsers(users) {
     this.store.dispatch(updateUsers(users, this.username));
-
-    lobbyView.updatePlayersList(
-      this.store.getState().users,
-      this.username
-    );
   }
 
   onUpdateRooms(rooms) {
     this.store.dispatch(updateRooms(rooms, this.room));
 
-    lobbyView.updateRoomsList(
+    lobbyView.renderRoomList(
       this.store.getState().rooms,
-      this.room
+      this.room,
+      this.username,
+      this.joinRoom
     );
   }
 
@@ -79,6 +94,12 @@ export default class Lobby {
     lobbyView.updateLatency(parseInt(this.latency, 10));
   }
 
+  joinRoom() {
+    socket.emit('joinroom', this.id);
+
+    return false;
+  }
+
   createRoom() {
     // TODO: modal
     socket.emit(
@@ -87,5 +108,14 @@ export default class Lobby {
         name: `Room${Math.floor(Math.random() * (1000 - 0 + 1))}`,
       }
     );
+  }
+
+  sendChatMessage(message) {
+    if (message) socket.emit('chatmessage', message);
+  }
+
+  onChatMessage(data) {
+    // TODO: use redux
+    lobbyView.addChatMessage(data);
   }
 }

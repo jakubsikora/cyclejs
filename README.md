@@ -9,9 +9,6 @@ Avg speed on flat 25 to 28 mph.
 
 2. Multiplayer
     - Lobby - server list
-        + rooms reducer + events
-        + room admin
-        + join custom room
         + simple chat
 
 3. Random bike y position on start.
