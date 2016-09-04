@@ -19,9 +19,7 @@ html, body {
 }
 
 canvas {
-  display: block;
-  width: 0;
-  height: 0;
+  display: none;
 }
 
 .debug {
@@ -73,7 +71,7 @@ canvas {
   }
 }
 
-.rooms-list {
+.games-list {
   .list-group-item {
     border: none;
     padding: 5px 15px;

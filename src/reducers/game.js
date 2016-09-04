@@ -1,5 +1,6 @@
 import {
   UPDATE_GAME_TIME,
+  START_GAME,
 } from '../actionTypes';
 
 const initialState = {
@@ -13,6 +14,11 @@ export default function game(state = initialState, action) {
       return {
         ...state,
         dt: action.payload.dt,
+      };
+    case START_GAME:
+      return {
+        ...state,
+        started: true,
       };
     default:
       return state;

@@ -1,6 +1,7 @@
 import lobbyView from './view/lobby';
 import { updateUsers } from './actions/users';
-import { updateRooms } from './actions/rooms';
+import { updateGames } from './actions/games';
+import { startGame } from './actions/game';
 
 const socket = io();
 
@@ -8,7 +9,7 @@ export default class Lobby {
   constructor(store) {
     this.store = store;
     this.username = null;
-    this.room = null;
+    this.game = null;
     this.startTime = Date.now();
     this.latency = 0;
 
@@ -16,13 +17,25 @@ export default class Lobby {
   }
 
   setEventsHandler() {
-    const createBtn = document.getElementById('create_room');
+    const createBtn = document.getElementById('create-game');
+    const startGameBtn = document.getElementById('start-game');
     const sendMessageBtn = document.getElementById('send-message-btn');
     const sendMessage = document.getElementById('send-message');
 
     // TODO: move to separate methods
     createBtn.addEventListener('click', () => {
-      this.createRoom();
+      this.createGame();
+    });
+
+    // TODO: refactor this
+    startGameBtn.addEventListener('click', () => {
+      this.store.dispatch(startGame());
+
+      const lobby = document.getElementById(('lobby'));
+      lobby.style.display = 'none';
+
+      const canvas = document.getElementById(('canvas'));
+      canvas.style.display = 'block';
     });
 
     sendMessageBtn.addEventListener('click', () => {
@@ -42,8 +55,8 @@ export default class Lobby {
     socket.on('connect', this.onSocketConnect);
     socket.on('adduser', this.onAddUsers.bind(this));
     socket.on('updateusers', this.onUpdateUsers.bind(this));
-    socket.on('addroom', this.onAddRoom.bind(this));
-    socket.on('updaterooms', this.onUpdateRooms.bind(this));
+    socket.on('addgame', this.onAddGame.bind(this));
+    socket.on('updategames', this.onUpdateGames.bind(this));
     socket.on('dispatch', this.onSocketDispatch);
     socket.on('pong', this.onPong);
     socket.on('chatmessage', this.onChatMessage);
@@ -66,22 +79,22 @@ export default class Lobby {
     this.username = user.username;
   }
 
-  onAddRoom(room) {
-    this.room = room.name;
+  onAddGame(game) {
+    this.game = game.name;
   }
 
   onUpdateUsers(users) {
     this.store.dispatch(updateUsers(users, this.username));
   }
 
-  onUpdateRooms(rooms) {
-    this.store.dispatch(updateRooms(rooms, this.room));
+  onUpdateGames(games) {
+    this.store.dispatch(updateGames(games, this.game));
 
-    lobbyView.renderRoomList(
-      this.store.getState().rooms,
-      this.room,
+    lobbyView.renderGamesList(
+      this.store.getState().games,
+      this.game,
       this.username,
-      this.joinRoom
+      this.joinGame
     );
   }
 
@@ -94,18 +107,18 @@ export default class Lobby {
     lobbyView.updateLatency(parseInt(this.latency, 10));
   }
 
-  joinRoom() {
-    socket.emit('joinroom', this.id);
+  joinGame() {
+    socket.emit('joingame', this.id);
 
     return false;
   }
 
-  createRoom() {
+  createGame() {
     // TODO: modal
     socket.emit(
-      'createroom',
+      'creategame',
       {
-        name: prompt('Enter room name:'),
+        name: prompt('Enter game name:'),
       }
     );
   }
@@ -115,7 +128,6 @@ export default class Lobby {
   }
 
   onChatMessage(data) {
-    // TODO: use redux
     lobbyView.addChatMessage(data);
   }
 }

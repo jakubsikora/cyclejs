@@ -28,7 +28,7 @@ const users = [];
 
 const DEFAULT_ROOM = 'Lobby';
 const SERVER = 'SERVER';
-const rooms = [];
+const games = [];
 
 // Helpers
 const debug = function (output) {
@@ -51,10 +51,6 @@ const sendToClient = (socket, type, data) => socket.emit(type, data);
 const sendToOthers = (socket, type, data) => socket.broadcast.emit(type, data);
 const sendToAll = (type, data) => io.sockets.emit(type, data);
 
-const getRoom = function (name) {
-  return rooms.filter(room => room.name === name)[0];
-};
-
 const sendChatMessage = function (data) {
   const date = new Date();
   const hours = date.getHours() < 10 ? `0${date.getHours()}` : date.getHours();
@@ -66,32 +62,32 @@ const sendChatMessage = function (data) {
     message: data.message,
     user: data.user,
     time: timeText,
-    server: data.user === SERVER ? true : false,
+    server: data.user === SERVER,
   });
 };
 
-const createRoom = function (name) {
-  debug(`New room: "${name}" has been created.`);
+const createGame = function (name) {
+  debug(`New game: "${name}" has been created.`);
 
-  rooms.push({
+  games.push({
     name,
     users: [],
   });
 };
 
-const joinRoom = function (name, user, socket) {
-  rooms.some(room => {
-    if (room.name === name) {
-      room.users.push(user);
+const joinGame = function (name, user, socket) {
+  games.some(game => {
+    if (game.name === name) {
+      game.users.push(user);
 
-      socket.join(room.name);
-      socket.room = room.name;
+      socket.join(game.name);
+      socket.game = game.name;
 
-      sendToClient(socket, 'addroom', room);
-      sendToClient(socket, 'updaterooms', rooms);
-      sendToOthers(socket, 'updaterooms', rooms);
+      sendToClient(socket, 'addgame', game);
+      sendToClient(socket, 'updategames', games);
+      sendToOthers(socket, 'updategames', games);
 
-      debug(`"${user.username}" joined the ${room.name}.`);
+      debug(`"${user.username}" joined the ${game.name}.`);
 
       return true;
     }
@@ -100,24 +96,24 @@ const joinRoom = function (name, user, socket) {
   });
 };
 
-const leaveRoom = function (name, username, socket) {
+const leaveGame = function (name, username, socket) {
   socket.leave(name);
 
-  rooms.some((room, roomIndex) => {
-    if (room.name === name) {
-      room.users.some((user, index) => {
+  games.some((game, gameIndex) => {
+    if (game.name === name) {
+      game.users.some((user, index) => {
         if (user.username === username) {
-          room.users.splice(index, 1);
+          game.users.splice(index, 1);
 
-          debug(`"${user.username}" left the room ${name}.`);
+          debug(`"${user.username}" left the ${name}.`);
 
-          if (!room.users.length && room.name !== DEFAULT_ROOM) {
-            rooms.splice(roomIndex, 1);
+          if (!game.users.length && game.name !== DEFAULT_ROOM) {
+            games.splice(gameIndex, 1);
 
-            debug(`"${room.name}" has been removed.`);
+            debug(`"${game.name}" has been removed.`);
 
             sendChatMessage({
-              message: `"Room ${room.name}" has been removed`,
+              message: `"${game.name}" has been removed`,
               user: SERVER,
             });
           }
@@ -134,12 +130,11 @@ const leaveRoom = function (name, username, socket) {
     return false;
   });
 
-  sendToAll('updaterooms', rooms);
+  sendToAll('updategames', games);
 };
 
 // Socket IO callbacks
 const onAddUser = function (data) {
-  // Update default room
   const user = {
     id: this.id,
     username: data.username,
@@ -153,43 +148,43 @@ const onAddUser = function (data) {
   sendToClient(this, 'updateusers', users);
   sendToOthers(this, 'updateusers', users);
 
-  joinRoom(DEFAULT_ROOM, user, this);
+  joinGame(DEFAULT_ROOM, user, this);
 
   sendChatMessage({
-    message: `${data.username} joined the room "${DEFAULT_ROOM}"`,
+    message: `${data.username} joined the "${DEFAULT_ROOM}"`,
     user: SERVER,
   });
 };
 
-const onCreateRoom = function (data) {
-  leaveRoom(this.room, this.user.username, this);
+const onCreateGame = function (data) {
+  leaveGame(this.game, this.user.username, this);
 
   sendChatMessage({
-    message: `${this.user.username} left the room "${this.room}"`,
+    message: `${this.user.username} left the "${this.game}"`,
     user: SERVER,
   });
 
-  createRoom(data.name);
-  joinRoom(data.name, this.user, this);
+  createGame(data.name);
+  joinGame(data.name, this.user, this);
 
   sendChatMessage({
-    message: `${this.user.username} created room "${data.name}"`,
+    message: `${this.user.username} created "${data.name}"`,
     user: SERVER,
   });
 };
 
-const onJoinRoom = function (name) {
-  leaveRoom(this.room, this.user.username, this);
+const onJoinGame = function (name) {
+  leaveGame(this.game, this.user.username, this);
 
   sendChatMessage({
-    message: `${this.user.username} left the room "${this.room}"`,
+    message: `${this.user.username} left the "${this.game}"`,
     user: SERVER,
   });
 
-  joinRoom(name, this.user, this);
+  joinGame(name, this.user, this);
 
   sendChatMessage({
-    message: `${this.user.username} joined the room "${name}"`,
+    message: `${this.user.username} joined the "${name}"`,
     user: SERVER,
   });
 };
@@ -217,11 +212,11 @@ const onDisconnect = function () {
   sendToAll('updateusers', users);
 
   // Remove player from the lobby
-  if (this.room !== DEFAULT_ROOM) {
-    leaveRoom(DEFAULT_ROOM, this.user.username, this);
+  if (this.game !== DEFAULT_ROOM) {
+    leaveGame(DEFAULT_ROOM, this.user.username, this);
   }
 
-  leaveRoom(this.room, this.user.username, this);
+  leaveGame(this.game, this.user.username, this);
 
   sendChatMessage({
     message: `${this.user.username} disconnected`,
@@ -239,8 +234,8 @@ const onPing = function () {
 
 const setEventsHandler = (socket) => {
   socket.on('adduser', onAddUser);
-  socket.on('createroom', onCreateRoom);
-  socket.on('joinroom', onJoinRoom);
+  socket.on('creategame', onCreateGame);
+  socket.on('joingame', onJoinGame);
   socket.on('disconnect', onDisconnect);
   socket.on('dispatch', onDispatch);
   socket.on('ping-client', onPing);
@@ -255,6 +250,6 @@ server.listen(port, function (error) {
   }
 });
 
-createRoom(DEFAULT_ROOM);
+createGame(DEFAULT_ROOM);
 
 io.on('connection', setEventsHandler);

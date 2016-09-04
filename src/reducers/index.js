@@ -5,7 +5,7 @@ import track from './track';
 import camera from './camera';
 import game from './game';
 import users from './users';
-import rooms from './rooms';
+import games from './games';
 
 export default combineReducers({
   keys,
@@ -14,5 +14,5 @@ export default combineReducers({
   camera,
   game,
   users,
-  rooms,
+  games,
 });

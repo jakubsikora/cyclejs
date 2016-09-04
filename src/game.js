@@ -29,8 +29,8 @@ class Game {
     });
 
     this.store = createStore(
-      reducer,
-      applyMiddleware(logger)
+      reducer
+      // applyMiddleware(logger)
     );
 
     this.lobby = new Lobby(this.store);
@@ -40,19 +40,15 @@ class Game {
   }
 
   init() {
-    const state = this.store.getState();
-
     this.setEventHandlers();
 
-    if (state.game.started) {
-      // Set the canvas components
-      this.stage = new StageComponent(canvas);
-      this.track = new TrackComponent(canvas);
-      this.camera = new CameraComponent(canvas);
-      this.bike = new BikeComponent(canvas);
+    // Set the canvas components
+    this.stage = new StageComponent(canvas);
+    this.track = new TrackComponent(canvas);
+    this.camera = new CameraComponent(canvas);
+    this.bike = new BikeComponent(canvas);
 
-      this.animate();
-    }
+    this.animate();
   }
 
   animate() {
@@ -65,14 +61,18 @@ class Game {
     const that = this;
 
     raf(function tick() {
+      const state = that.store.getState();
       const now = Date.now();
       dt = (now - lastTime) / 1000;
 
       that.store.dispatch(updateGameTime(dt));
 
-      animateCallback();
-
       lastTime = now;
+
+      if (state.game.started) {
+        animateCallback();
+      }
+
       raf(tick);
     });
   }

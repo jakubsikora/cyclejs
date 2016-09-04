@@ -1,45 +1,45 @@
 class LobbyView {
-  renderRoomList(rooms, currentRoom, curentUser, cb) {
-    const roomsList = document.getElementById('rooms-list');
+  renderGamesList(games, currentGame, curentUser, cb) {
+    const gamesList = document.getElementById('games-list');
 
     // Clear the list
-    const roomsListCount = roomsList.children.length;
+    const gamesListCount = gamesList.children.length;
 
-    for (let i = roomsListCount; i > 0; i--) {
-      const child = roomsList.children[i - 1];
+    for (let i = gamesListCount; i > 0; i--) {
+      const child = gamesList.children[i - 1];
 
       child.parentNode.removeChild(child);
     }
 
-    rooms.forEach(room => {
-      const newRoom = document.createElement('li');
-      newRoom.classList.add('list-group-item');
+    games.forEach(game => {
+      const newGame = document.createElement('li');
+      newGame.classList.add('list-group-item');
 
       const numberOfUsers = document.createElement('span');
       numberOfUsers.classList.add('badge');
-      numberOfUsers.appendChild(document.createTextNode(room.users.length));
+      numberOfUsers.appendChild(document.createTextNode(game.users.length));
 
-      newRoom.appendChild(numberOfUsers);
+      newGame.appendChild(numberOfUsers);
 
-      if (room.name !== currentRoom) {
-        const joinRoomAnchor = document.createElement('a');
+      if (game.name !== currentGame) {
+        const joinGameAnchor = document.createElement('a');
 
-        joinRoomAnchor.appendChild(document.createTextNode(room.name));
-        joinRoomAnchor.classList.add('join-room');
-        joinRoomAnchor.id = `${room.name}`;
+        joinGameAnchor.appendChild(document.createTextNode(game.name));
+        joinGameAnchor.classList.add('join-game');
+        joinGameAnchor.id = `${game.name}`;
 
         // TODO: clear event listener
-        joinRoomAnchor.addEventListener('click', cb);
+        joinGameAnchor.addEventListener('click', cb);
 
-        newRoom.appendChild(joinRoomAnchor);
+        newGame.appendChild(joinGameAnchor);
       } else {
-        newRoom.appendChild(document.createTextNode(room.name));
+        newGame.appendChild(document.createTextNode(game.name));
       }
 
       const users = document.createElement('ul');
       users.classList.add('list-group');
 
-      room.users.forEach(user => {
+      game.users.forEach(user => {
         const userItem = document.createElement('li');
         userItem.classList.add('list-group-item');
 
@@ -48,13 +48,11 @@ class LobbyView {
         }
 
         userItem.appendChild(document.createTextNode(user.username));
-
         users.appendChild(userItem);
       });
 
-      newRoom.appendChild(users);
-
-      roomsList.appendChild(newRoom);
+      newGame.appendChild(users);
+      gamesList.appendChild(newGame);
     });
   }
 

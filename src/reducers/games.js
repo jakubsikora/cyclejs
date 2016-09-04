@@ -1,11 +1,11 @@
 import {
-  ADD_ROOM,
-  UPDATE_ROOMS,
+  ADD_GAME,
+  UPDATE_GAMES,
 } from '../actionTypes';
 
-const room = (state, action) => {
+const game = (state, action) => {
   switch (action.type) {
-    case ADD_ROOM:
+    case ADD_GAME:
       return {
         id: action.payload.id,
         name: action.payload.username,
@@ -19,18 +19,18 @@ const room = (state, action) => {
 
 const initialState = [];
 
-const rooms = (state = initialState, action) => {
+const games = (state = initialState, action) => {
   switch (action.type) {
-    case ADD_ROOM:
+    case ADD_GAME:
       return [
         ...state,
-        room(undefined, action),
+        game(undefined, action),
       ];
-    case UPDATE_ROOMS:
-      return action.payload.rooms;
+    case UPDATE_GAMES:
+      return action.payload.games;
     default:
       return state;
   }
 };
 
-export default rooms;
+export default games;

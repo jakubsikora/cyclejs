@@ -1,5 +1,6 @@
 import {
   UPDATE_GAME_TIME,
+  START_GAME,
 } from '../actionTypes';
 
 export function updateGameTime(dt) {
@@ -8,5 +9,11 @@ export function updateGameTime(dt) {
     payload: {
       dt,
     },
+  };
+}
+
+export function startGame() {
+  return {
+    type: START_GAME,
   };
 }
