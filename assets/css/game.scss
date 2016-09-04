@@ -1,5 +1,9 @@
+@import "variables.scss";
 @import "~bootstrap-sass/assets/stylesheets/_bootstrap-sprockets.scss";
 @import "~bootstrap-sass/assets/stylesheets/_bootstrap.scss";
+
+// Overrides
+@import "panels.scss";
 
 * {
   margin: 0;
@@ -75,6 +79,8 @@ canvas {
   .list-group-item {
     border: none;
     padding: 5px 15px;
+    background: $brand-primary;
+    color: #fff;
 
     .list-group {
       margin-bottom: 0;

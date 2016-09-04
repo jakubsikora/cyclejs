@@ -44,7 +44,7 @@ class LobbyView {
         userItem.classList.add('list-group-item');
 
         if (user.username === curentUser) {
-          userItem.classList.add('list-group-item-info');
+          // userItem.classList.add('list-group-item-info');
         }
 
         userItem.appendChild(document.createTextNode(user.username));
