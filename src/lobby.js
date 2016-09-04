@@ -53,7 +53,7 @@ export default class Lobby {
     socket.emit(
       'adduser',
       {
-        username: `User${Math.floor(Math.random() * (1000 - 0 + 1))}`,
+        username: prompt('Enter username'),
       });
 
     setInterval(() => {
@@ -105,7 +105,7 @@ export default class Lobby {
     socket.emit(
       'createroom',
       {
-        name: `Room${Math.floor(Math.random() * (1000 - 0 + 1))}`,
+        name: prompt('Enter room name:'),
       }
     );
   }

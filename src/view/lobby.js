@@ -1,71 +1,4 @@
-const DEFAULT_ROOM = 'Lobby';
-
 class LobbyView {
-  updatePlayersList(users, currentUser) {
-    const playersListTable = document.getElementById('players-list');
-
-    // Clear the table, keep the header
-    const playersListRowCount = playersListTable.rows.length;
-
-    for (let i = playersListRowCount; i > 1; i--) {
-      playersListTable.deleteRow(i - 1);
-    }
-
-    users.forEach((user, index) => {
-      const newRow = playersListTable.insertRow(index + 1);
-      const userNameCell = newRow.insertCell(0);
-      const idCell = newRow.insertCell(1);
-
-      userNameCell.appendChild(document.createTextNode(user.username));
-
-      if (user.username === currentUser) {
-        newRow.classList.add('info');
-      }
-
-      idCell.appendChild(document.createTextNode(user.id));
-    });
-  }
-
-  updateRoomsList(rooms, currentRoom, cb) {
-    const roomsListTable = document.getElementById('rooms-table');
-
-    // Clear the table, keep the header
-    const roomsListRowCount = roomsListTable.rows.length;
-
-    for (let i = roomsListRowCount; i > 1; i--) {
-      roomsListTable.deleteRow(i - 1);
-    }
-
-    rooms.forEach((room, index) => {
-      const newRow = roomsListTable.insertRow(index + 1);
-      const roomNameCell = newRow.insertCell(0);
-      const numberOfPlayersCell = newRow.insertCell(1);
-      const roomNameTextNode = document.createTextNode(room.name);
-
-      if (room.name !== currentRoom && room.name !== DEFAULT_ROOM) {
-        const joinRoomAnchor = document.createElement('a');
-
-        joinRoomAnchor.appendChild(roomNameTextNode);
-        joinRoomAnchor.classList.add('join-room');
-        joinRoomAnchor.id = `${room.name}`;
-
-        // TODO: clear event listener
-        joinRoomAnchor.addEventListener('click', cb);
-
-        roomNameCell.appendChild(joinRoomAnchor);
-      } else {
-        roomNameCell.appendChild(roomNameTextNode);
-      }
-
-      numberOfPlayersCell.appendChild(
-        document.createTextNode(room.users.length));
-
-      if (room.name === currentRoom) {
-        newRow.classList.add('info');
-      }
-    });
-  }
-
   renderRoomList(rooms, currentRoom, curentUser, cb) {
     const roomsList = document.getElementById('rooms-list');
 
@@ -78,7 +11,7 @@ class LobbyView {
       child.parentNode.removeChild(child);
     }
 
-    rooms.forEach((room, index) => {
+    rooms.forEach(room => {
       const newRoom = document.createElement('li');
       newRoom.classList.add('list-group-item');
 
@@ -135,9 +68,8 @@ class LobbyView {
     }
 
     p.innerHTML = message;
-    chat.appendChild(p);
-
-    chat.scrollTop = chat.scrollHeight;
+    chat.insertBefore(p, chat.children[0]);
+    chat.parentElement.scrollTop = chat.scrollHeight;
   }
 
   updateLatency(latency) {
