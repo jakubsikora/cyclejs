@@ -89,7 +89,7 @@ export default class Lobby {
 
   onUpdateGames(games) {
     this.store.dispatch(updateGames(games, this.game));
-    debugger;
+
     lobbyView.renderGamesList(
       this.store.getState().games,
       this.game,
