@@ -1,14 +1,12 @@
 import lobbyView from './view/lobby';
-import { updateUsers } from './actions/users';
-import { updateGames } from './actions/games';
 import { startGame } from './actions/game';
 
 const socket = io();
 
-export default class Lobby {
+export default class Client {
   constructor(store) {
     this.store = store;
-    this.username = null;
+    // this.username = null;
     this.game = null;
     this.startTime = Date.now();
     this.latency = 0;
@@ -57,7 +55,7 @@ export default class Lobby {
     socket.on('updateusers', this.onUpdateUsers.bind(this));
     socket.on('addgame', this.onAddGame.bind(this));
     socket.on('updategames', this.onUpdateGames.bind(this));
-    socket.on('dispatch', this.onSocketDispatch);
+    socket.on('dispatch', this.onSocketDispatch.bind(this));
     socket.on('pong', this.onPong);
     socket.on('chatmessage', this.onChatMessage);
   }
@@ -76,6 +74,7 @@ export default class Lobby {
   }
 
   onAddUsers(user) {
+    console.log('user', user);
     this.username = user.username;
   }
 
@@ -84,6 +83,7 @@ export default class Lobby {
   }
 
   onUpdateUsers(users) {
+    console.log('onUpdateUsers', users);
     this.store.dispatch(updateUsers(users, this.username));
   }
 
@@ -98,8 +98,9 @@ export default class Lobby {
     );
   }
 
-  onSocketDispatch(data) {
-    this.store.dispatch(data);
+  onSocketDispatch(action, type) {
+    this.store.dispatch(action);
+    lobbyView.render(type);
   }
 
   onPong() {

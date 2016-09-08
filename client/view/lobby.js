@@ -1,4 +1,13 @@
 class LobbyView {
+  render(type, data) {
+    switch (type) {
+      case 'room':
+        this.renderGamesList(data);
+        break;
+      default:
+    }
+  }
+
   renderGamesList(games, currentGame, curentUser, cb) {
     const gamesList = document.getElementById('games-list');
 

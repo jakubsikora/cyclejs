@@ -45,6 +45,8 @@
     // End files with \n
     "eol-last": 2,
 
+    "global-require": 0,
+
     // Ignore import resolver due to paths specified in e2e.
     // TODO: We can implement our own resolver see:
     // https://github.com/benmosher/eslint-plugin-import/blob/master/resolvers/README.md
@@ -56,6 +58,7 @@
     "window": false,
     "document": false,
     "io": false,
+    "require": false,
 
     // Used in the browser
     "Image": false,
