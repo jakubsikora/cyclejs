@@ -37,6 +37,7 @@
     "raf": "^3.2.0",
     "redux": "^3.5.2",
     "redux-logger": "^2.6.1",
+    "redux-node-logger": "0.0.3",
     "rimraf": "^2.4.4",
     "sass-loader": "^3.2.0",
     "style-loader": "^0.13.0",
