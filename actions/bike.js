@@ -4,9 +4,6 @@ import {
   DECREASE_BIKE_VELOCITY,
   UPDATE_BIKE,
   USE_ENERGY_FUEL,
-} from '../actionTypes';
-
-import {
   BIKE_WIDTH,
   BIKE_MAX_VELOCITY,
   BIKE_VELOCITY_FACTOR,

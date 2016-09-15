@@ -1,19 +1,21 @@
-import lobbyView from './view/lobby';
-import { updateUsers } from './actions/users';
-import { updateGames } from './actions/games';
-import { startGame } from './actions/game';
+import clientView from './view/client';
+import { startGame } from '../actions/game';
+import {
+  GAME_LIST_VIEW,
+} from '../constants';
 
 const socket = io();
 
-export default class Lobby {
+export default class Client {
   constructor(store) {
     this.store = store;
-    this.username = null;
-    this.game = null;
     this.startTime = Date.now();
     this.latency = 0;
 
     this.setEventsHandler();
+    this.callbacks = {};
+
+    this.callbacks[GAME_LIST_VIEW] = this.joinGame;
   }
 
   setEventsHandler() {
@@ -53,13 +55,8 @@ export default class Lobby {
     });
 
     socket.on('connect', this.onSocketConnect);
-    socket.on('adduser', this.onAddUsers.bind(this));
-    socket.on('updateusers', this.onUpdateUsers.bind(this));
-    socket.on('addgame', this.onAddGame.bind(this));
-    socket.on('updategames', this.onUpdateGames.bind(this));
-    socket.on('dispatch', this.onSocketDispatch);
+    socket.on('dispatch', this.onSocketDispatch.bind(this));
     socket.on('pong', this.onPong);
-    socket.on('chatmessage', this.onChatMessage);
   }
 
   onSocketConnect() {
@@ -72,43 +69,21 @@ export default class Lobby {
     setInterval(() => {
       this.startTime = Date.now();
       socket.emit('ping-client');
-    }, 2000);
+    }, 5000);
   }
 
-  onAddUsers(user) {
-    this.username = user.username;
-  }
-
-  onAddGame(game) {
-    this.game = game.name;
-  }
-
-  onUpdateUsers(users) {
-    this.store.dispatch(updateUsers(users, this.username));
-  }
-
-  onUpdateGames(games) {
-    this.store.dispatch(updateGames(games, this.game));
-
-    lobbyView.renderGamesList(
-      this.store.getState().games,
-      this.game,
-      this.username,
-      this.joinGame
-    );
-  }
-
-  onSocketDispatch(data) {
-    this.store.dispatch(data);
+  onSocketDispatch(action, viewType) {
+    this.store.dispatch(action);
+    clientView.render(viewType, action, this.store, this.callbacks[viewType]);
   }
 
   onPong() {
     this.latency = Date.now() - this.startTime;
-    lobbyView.updateLatency(parseInt(this.latency, 10));
+    clientView.updateLatency(parseInt(this.latency, 10));
   }
 
   joinGame() {
-    socket.emit('joingame', this.id);
+    socket.emit('changegame', this.id);
 
     return false;
   }
@@ -124,10 +99,11 @@ export default class Lobby {
   }
 
   sendChatMessage(message) {
-    if (message) socket.emit('chatmessage', message);
-  }
+    const state = this.store.getState();
 
-  onChatMessage(data) {
-    lobbyView.addChatMessage(data);
+    if (message) {
+      socket.emit(
+        'chatmessage', message, state.users.localUser.username);
+    }
   }
 }

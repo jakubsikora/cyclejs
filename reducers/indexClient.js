@@ -6,6 +6,7 @@ import camera from './camera';
 import game from './game';
 import users from './users';
 import games from './games';
+import chat from './chat';
 
 export default combineReducers({
   keys,
@@ -15,4 +16,5 @@ export default combineReducers({
   game,
   users,
   games,
+  chat,
 });
