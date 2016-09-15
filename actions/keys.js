@@ -7,11 +7,7 @@ import {
   RELEASE_LEFT,
   PRESS_RIGHT,
   RELEASE_RIGHT,
-  INIT_BIKE,
-  UPDATE_BIKE_POSITION,
-  INCREASE_BIKE_VELOCITY,
-  DECREASE_BIKE_VELOCITY,
-} from './actionTypes';
+} from '../constants';
 
 export function pressUp() {
   return {

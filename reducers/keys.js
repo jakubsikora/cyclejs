@@ -7,7 +7,7 @@ import {
   RELEASE_LEFT,
   PRESS_RIGHT,
   RELEASE_RIGHT,
-} from '../actionTypes';
+} from '../constants';
 
 const initialState = { up: false, down: false, right: false, left: false };
 

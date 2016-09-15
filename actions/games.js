@@ -2,6 +2,7 @@ import {
   ADD_GAME,
   UPDATE_GAMES,
   ADD_GAME_USER,
+  LEAVE_GAME,
 } from '../constants';
 
 export function addGame(game) {
@@ -28,6 +29,16 @@ export function addGameUser(name, user) {
     payload: {
       name,
       user,
+    },
+  };
+}
+
+export function leaveGame(userId, gameName) {
+  return {
+    type: LEAVE_GAME,
+    payload: {
+      userId,
+      gameName,
     },
   };
 }

@@ -1,5 +1,5 @@
 import Component from './component';
-import { TRACK_WIDTH } from '../constants';
+import { TRACK_WIDTH } from '../../constants';
 
 class TrackComponent extends Component {
   constructor(canvas) {

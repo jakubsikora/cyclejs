@@ -1,7 +1,7 @@
 import {
   UPDATE_GAME_TIME,
   START_GAME,
-} from '../actionTypes';
+} from '../constants';
 
 export function updateGameTime(dt) {
   return {

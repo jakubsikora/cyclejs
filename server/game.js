@@ -3,8 +3,15 @@ import createNodeLogger from 'redux-node-logger';
 import SocketBase from './socket';
 import reducers from '../reducers/indexServer';
 import { addUser, updateUsers, removeUser } from '../actions/users';
-import { addGame, addGameUser, updateGames } from '../actions/games';
-import { DEFAULT_ROOM } from '../constants';
+import { addMessage, updateMessages } from '../actions/chat';
+import { addGame, addGameUser, updateGames, leaveGame } from '../actions/games';
+import {
+  SERVER,
+  DEFAULT_ROOM,
+  GAME_LIST_VIEW,
+  CHAT_MESSAGE_VIEW,
+  CHAT_MESSAGES_VIEW,
+} from '../constants';
 
 class Game extends SocketBase {
   constructor(io) {
@@ -13,13 +20,13 @@ class Game extends SocketBase {
     this.gameRooms = [];
 
     this.store = createStore(
-      reducers,
-      applyMiddleware(createNodeLogger())
+      reducers
+      // applyMiddleware(createNodeLogger())
     );
 
     this.sockets = [];
 
-    this.createGame(DEFAULT_ROOM);
+    this.initGame(DEFAULT_ROOM);
   }
 
   setEventsHandler(socket) {
@@ -27,17 +34,21 @@ class Game extends SocketBase {
 
     const addUserHandler = this.addUser.bind(this, socket);
     const disconnectHandler = this.disconnect.bind(this, socket);
+    const createGameHandler = this.createGame.bind(this, socket);
+    const changeGameHandler = this.changeGame.bind(this, socket);
+    const pingHandler = this.ping.bind(this, socket);
+    const addChatMessageHandler = this.sendChatToAll.bind(this);
 
     socket.on('adduser', addUserHandler);
     socket.on('disconnect', disconnectHandler);
-    // this.socket.on('creategame', onCreateGame);
-    // this.socket.on('joingame', onJoinGame);
+    socket.on('creategame', createGameHandler);
+    socket.on('changegame', changeGameHandler);
+    socket.on('ping-client', pingHandler);
+    socket.on('chatmessage', addChatMessageHandler);
     // this.socket.on('dispatch', onDispatch);
-    // this.socket.on('ping-client', onPing);
-    // this.socket.on('chatmessage', onChatMessage);
   }
 
-  createGame(name) {
+  initGame(name) {
     this.store.dispatch(addGame({
       name,
       users: [],
@@ -55,22 +66,42 @@ class Game extends SocketBase {
 
     this.store.dispatch(addUser(user));
 
-    const state = this.store.getState();
+    let state = this.store.getState();
 
-    this.sendToClient('dispatch', addUser(user), socket);
-    this.sendToAll('dispatch', updateUsers(state.users.users));
+    this.dispatchToClient(addUser(user), socket);
+    this.dispatchToAll(updateUsers(state.users.users));
 
     // Create initial game
-    this.sendToClient('dispatch', addGame({
-      name: DEFAULT_ROOM,
-      users: [],
-    }), socket);
+    this.dispatchToClient(addGame({ name: DEFAULT_ROOM, users: [] }), socket);
 
-    this.joinGame(DEFAULT_ROOM, socket);
+    this.joinGame(DEFAULT_ROOM, socket, true);
+
+    state = this.store.getState();
+
+    this.dispatchToClient(
+      updateMessages(state.chat.messages), socket, CHAT_MESSAGES_VIEW);
+  }
+
+  createGame(socket, data) {
+    // Leave current game
+    this.leaveGame(socket);
+
+    // Add new game
+    this.store.dispatch(addGame({
+      name: data.name,
+      users: [],
+    }));
+
+    this.dispatchToClient(addGame({ name: data.name, users: [] }), socket);
+    this.sendChatToOthers(
+      socket, `${socket.user.username} created ${data.name}`, SERVER);
+
+    // Join the game
+    this.joinGame(data.name, socket);
   }
 
   joinGame(name, socket) {
-    const state = this.store.getState();
+    let state = this.store.getState();
 
     state.games.list.some(game => {
       if (game.name === name) {
@@ -85,13 +116,59 @@ class Game extends SocketBase {
       return false;
     });
 
-    this.sendToClient('dispatch', addGameUser(name, socket.user), socket);
-    this.sendToAll('dispatch', updateGames(state.games.list));
+    this.dispatchToClient(addGameUser(name, socket.user), socket);
+
+    state = this.store.getState();
+
+    this.dispatchToAll(updateGames(state.games.list), GAME_LIST_VIEW);
+
+    this.sendChatToOthers(
+      socket, `${socket.user.username} joined ${name}`, SERVER);
+  }
+
+  changeGame(socket, name) {
+    // Leave current game
+    this.leaveGame(socket);
+
+    // Join the game
+    this.joinGame(name, socket);
+  }
+
+  leaveGame(socket) {
+    const state = this.store.getState();
+
+    socket.leave(socket.game);
+
+    state.games.list.some(game => {
+      if (game.name === socket.game) {
+        game.users.some(user => {
+          if (user.id === socket.user.id) {
+            this.store.dispatch(leaveGame(user.id, game.name));
+            this.dispatchToAll(leaveGame(user.id, game.name));
+            this.sendChatToOthers(
+              socket, `${socket.user.username} left ${game.name}`, SERVER);
+
+            return true;
+          }
+
+          return false;
+        });
+
+        return true;
+      }
+
+      return false;
+    });
+  }
+
+  ping(socket) {
+    this.sendToClient('pong', null, socket);
   }
 
   disconnect(socket) {
     this.store.dispatch(removeUser(socket.user.id, socket.game));
-    this.sendToAll('dispatch', removeUser(socket.user.id, socket.game));
+    this.dispatchToAll(removeUser(socket.user.id, socket.game), GAME_LIST_VIEW);
+    this.sendChatToAll(`${socket.user.username} disconnected`, SERVER);
   }
 }
 

@@ -3,9 +3,6 @@ import {
   DECREASE_BIKE_VELOCITY,
   UPDATE_BIKE,
   USE_ENERGY_FUEL,
-} from '../actionTypes';
-
-import {
   BIKE_IDLE_VELOCITY,
   ENERGY_INITIAL,
   HR_INITIAL,

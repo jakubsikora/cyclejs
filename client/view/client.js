@@ -1,14 +1,33 @@
-class LobbyView {
-  render(type, data) {
+import {
+  SERVER,
+  GAME_LIST_VIEW,
+  CHAT_MESSAGE_VIEW,
+  CHAT_MESSAGES_VIEW,
+} from '../../constants';
+
+class ClientView {
+  render(type, action, store, callback) {
     switch (type) {
-      case 'room':
-        this.renderGamesList(data);
+      case GAME_LIST_VIEW:
+        this.renderGamesList(store, callback);
+        break;
+      case CHAT_MESSAGE_VIEW:
+        this.addChatMessage(action.payload.message);
+        break;
+      case CHAT_MESSAGES_VIEW:
+        this.addChatMessages(store);
         break;
       default:
     }
   }
 
-  renderGamesList(games, currentGame, curentUser, cb) {
+  renderGamesList(store, callback) {
+    const state = store.getState();
+    const games = state.games;
+    const users = state.users;
+    const currentGame = games.localGame;
+    const currentUser = users.localUser;
+
     const gamesList = document.getElementById('games-list');
 
     // Clear the list
@@ -20,7 +39,7 @@ class LobbyView {
       child.parentNode.removeChild(child);
     }
 
-    games.forEach(game => {
+    games.list.forEach(game => {
       const newGame = document.createElement('li');
       newGame.classList.add('list-group-item');
 
@@ -35,32 +54,35 @@ class LobbyView {
 
         joinGameAnchor.appendChild(document.createTextNode(game.name));
         joinGameAnchor.classList.add('join-game');
+        joinGameAnchor.classList.add('btn');
+        joinGameAnchor.classList.add('btn-xs');
+        joinGameAnchor.classList.add('btn-info');
         joinGameAnchor.id = `${game.name}`;
 
         // TODO: clear event listener
-        joinGameAnchor.addEventListener('click', cb);
+        joinGameAnchor.addEventListener('click', callback);
 
         newGame.appendChild(joinGameAnchor);
       } else {
         newGame.appendChild(document.createTextNode(game.name));
       }
 
-      const users = document.createElement('ul');
-      users.classList.add('list-group');
+      const usersEl = document.createElement('ul');
+      usersEl.classList.add('list-group');
 
       game.users.forEach(user => {
         const userItem = document.createElement('li');
         userItem.classList.add('list-group-item');
 
-        if (user.username === curentUser) {
+        if (user.username === currentUser.username) {
           // userItem.classList.add('list-group-item-info');
         }
 
         userItem.appendChild(document.createTextNode(user.username));
-        users.appendChild(userItem);
+        usersEl.appendChild(userItem);
       });
 
-      newGame.appendChild(users);
+      newGame.appendChild(usersEl);
       gamesList.appendChild(newGame);
     });
   }
@@ -68,9 +90,9 @@ class LobbyView {
   addChatMessage(data) {
     const chat = document.querySelector('.chat-body');
     const p = document.createElement('p');
-    let message = `<small>${data.time}</small> <strong>${data.user}:</strong> ${data.message}`;
+    let message = `<small>${data.time}</small> <strong>${data.sender}:</strong> ${data.text}`;
 
-    if (data.server) {
+    if (data.sender === SERVER) {
       message = `<span class="server-message">${message}</span>`;
     }
 
@@ -79,9 +101,16 @@ class LobbyView {
     chat.parentElement.scrollTop = chat.scrollHeight;
   }
 
+  addChatMessages(store) {
+    const state = store.getState();
+    const messages = state.chat.messages;
+
+    messages.forEach(this.addChatMessage);
+  }
+
   updateLatency(latency) {
     document.getElementById('latency').innerHTML = latency;
   }
 }
 
-export default new LobbyView();
+export default new ClientView();

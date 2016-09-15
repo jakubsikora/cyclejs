@@ -1,6 +1,6 @@
 import {
   UPDATE_CAMERA_OFFSET,
-} from '../actionTypes';
+} from '../constants';
 
 const initialState = {
   totalOffset: 0,

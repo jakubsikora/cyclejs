@@ -1,7 +1,7 @@
 import Component from './component';
 import Sprite from './sprite';
-import { updateBike } from '../actions/bike';
-import { updateCameraOffset } from '../actions/camera';
+import { updateBike } from '../../actions/bike';
+import { updateCameraOffset } from '../../actions/camera';
 import {
   METER_TO_PX,
   TRACK_SCREEN_OFFSET,
@@ -9,7 +9,7 @@ import {
   BIKE_HEIGHT,
   BIKE_SPRITESHEET_WIDTH,
   BIKE_SPRITESHEET_HEIGHT,
-} from '../constants';
+} from '../../constants';
 
 class BikeComponent extends Component {
   constructor(canvas) {

@@ -1,7 +1,7 @@
 import { applyMiddleware, createStore } from 'redux';
 import createLogger from 'redux-logger';
 import Client from './client.js';
-import reducer from './reducers/index';
+import reducer from '../reducers/indexClient';
 import Keys from './keys';
 import raf from 'raf';
 import canvas from './canvas';
@@ -13,8 +13,8 @@ import {
   UPDATE_BIKE,
   UPDATE_CAMERA_OFFSET,
   UPDATE_GAME_TIME,
-} from './actionTypes';
-import { updateGameTime } from './actions/game';
+} from '../constants';
+import { updateGameTime } from '../actions/game';
 
 class Game {
   constructor() {
